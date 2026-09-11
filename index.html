@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ConvertFileType — Fast, Private File Conversion</title>
+  <meta name="description" content="Convert common file types in your browser with simple, privacy-first tools.">
+  <link rel="canonical" href="https://convertfiletype.com/">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="ConvertFileType home">ConvertFileType</a>
+    <nav aria-label="Primary">
+      <a href="#converters">Converters</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Fast file tools</p>
+      <h1>Convert files without the clutter.</h1>
+      <p class="lede">Simple browser-based converters built to keep common jobs quick and easy.</p>
+      <form class="tool-search" role="search" data-tool-search>
+        <label for="tool-query">Find a converter</label>
+        <div class="search-row">
+          <input id="tool-query" name="q" type="search" placeholder="Try HEIC to JPG" autocomplete="off">
+          <button type="submit">Search</button>
+        </div>
+      </form>
+    </section>
+
+    <div class="ad-slot" data-ad-slot="home-top" aria-label="Advertisement placeholder">Ad space reserved</div>
+
+    <section id="converters" class="section-block" aria-labelledby="converter-heading">
+      <div class="section-heading">
+        <p class="eyebrow">Popular tools</p>
+        <h2 id="converter-heading">File converters</h2>
+      </div>
+      <div class="tool-grid" data-tool-grid></div>
+      <p class="empty-state" data-empty-state hidden>No matching converter yet.</p>
+    </section>
+
+    <section id="privacy" class="privacy-card">
+      <p class="eyebrow">Privacy-first architecture</p>
+      <h2>Your files should stay yours.</h2>
+      <p>Converters that can run safely in your browser will process files locally. Each tool will clearly state when a file must leave your device.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© <span data-current-year></span> ConvertFileType.com</span>
+    <a href="/privacy/">Privacy</a>
+  </footer>
+
+  <script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>
