@@ -1,0 +1,29 @@
+name: release-gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required files
+        run: |
+          test -f index.html
+          test -f assets/css/styles.css
+          test -f assets/js/app.js
+          test -f assets/js/converters.js
+          test -f heic-to-jpg/index.html
+          test -f privacy/index.html
+          test -f robots.txt
+          test -f sitemap.xml
+          test -f _headers
+      - name: Check key routes
+        run: |
+          grep -q "data-tool-grid" index.html
+          grep -q "heic-to-jpg" assets/js/converters.js
+          grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
