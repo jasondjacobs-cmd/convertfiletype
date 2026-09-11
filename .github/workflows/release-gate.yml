@@ -17,6 +17,7 @@ jobs:
           test -f assets/css/styles.css
           test -f assets/js/app.js
           test -f assets/js/converters.js
+          test -f assets/js/heic-to-jpg.js
           test -f heic-to-jpg/index.html
           test -f privacy/index.html
           test -f robots.txt
@@ -27,3 +28,17 @@ jobs:
           grep -q "data-tool-grid" index.html
           grep -q "heic-to-jpg" assets/js/converters.js
           grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
+      - name: Check HEIC converter wiring
+        run: |
+          grep -q 'data-heic-file' heic-to-jpg/index.html
+          grep -q 'data-convert' heic-to-jpg/index.html
+          grep -q 'heic2any@0.0.4' heic-to-jpg/index.html
+          grep -q '/assets/js/heic-to-jpg.js' heic-to-jpg/index.html
+          grep -q 'window.heic2any' assets/js/heic-to-jpg.js
+          grep -q "toType: 'image/jpeg'" assets/js/heic-to-jpg.js
+          grep -q '25 \* 1024 \* 1024' assets/js/heic-to-jpg.js
+          ! grep -q 'conversion engine will be added' heic-to-jpg/index.html
+      - name: Check security policy
+        run: |
+          grep -q 'https://cdn.jsdelivr.net' _headers
+          grep -q "worker-src 'self' blob:" _headers
