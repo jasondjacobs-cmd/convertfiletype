@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>HEIC to JPG Converter | ConvertFileType</title>
-  <meta name="description" content="Convert HEIC images to JPG. The working browser converter is the first tool planned for ConvertFileType v1.">
+  <meta name="description" content="Convert HEIC and HEIF images to JPG in your browser. Your source image stays on your device during conversion.">
   <link rel="canonical" href="https://convertfiletype.com/heic-to-jpg/">
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
@@ -13,18 +13,81 @@
     <a class="brand" href="/">ConvertFileType</a>
     <nav aria-label="Primary"><a href="/">All converters</a></nav>
   </header>
+
   <main>
-    <section class="hero">
+    <section class="hero converter-hero">
       <p class="eyebrow">Image converter</p>
       <h1>HEIC to JPG</h1>
-      <p class="lede">This route is reserved for the first working converter. The conversion engine will be added in the next build step.</p>
+      <p class="lede">Convert an HEIC or HEIF photo to a widely supported JPG. Your source file is processed in your browser and is not uploaded to ConvertFileType.</p>
     </section>
-    <div class="privacy-card">
-      <p class="eyebrow">Planned behavior</p>
-      <h2>Local processing first.</h2>
-      <p>When browser support allows it, HEIC conversion will happen on your device rather than uploading the source image to our servers.</p>
-    </div>
+
+    <section class="converter-panel" aria-labelledby="converter-title">
+      <div class="converter-panel-heading">
+        <div>
+          <p class="eyebrow">Free converter</p>
+          <h2 id="converter-title">Choose your HEIC file</h2>
+        </div>
+        <span class="local-badge">Processed on your device</span>
+      </div>
+
+      <label class="drop-zone" for="heic-file" data-drop-zone>
+        <input id="heic-file" data-heic-file type="file" accept=".heic,.heif,image/heic,image/heif" hidden>
+        <strong>Choose HEIC file</strong>
+        <span>or drag and drop one here</span>
+        <small>HEIC or HEIF, up to 25 MB</small>
+      </label>
+
+      <div class="selected-file" data-selected-file hidden>
+        <div>
+          <strong data-file-name></strong>
+          <span data-file-size></span>
+        </div>
+        <button type="button" class="text-button" data-clear-file>Remove</button>
+      </div>
+
+      <div class="converter-options">
+        <label for="jpg-quality">JPG quality <output for="jpg-quality" data-quality-output>90%</output></label>
+        <input id="jpg-quality" data-quality type="range" min="60" max="100" value="90" step="5">
+      </div>
+
+      <button type="button" class="primary-action" data-convert disabled>Convert to JPG</button>
+      <p class="converter-status" data-status role="status" aria-live="polite">Choose a file to begin.</p>
+
+      <div class="conversion-result" data-result hidden>
+        <img data-preview alt="Converted JPG preview">
+        <div class="result-copy">
+          <strong>Your JPG is ready.</strong>
+          <span data-result-size></span>
+          <a class="download-action" data-download download>Download JPG</a>
+          <button type="button" class="text-button" data-convert-another>Convert another file</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="ad-slot" data-ad-slot="converter-mid" aria-label="Reserved advertisement area">Advertisement space reserved</div>
+
+    <section class="section-block content-section">
+      <div class="section-heading">
+        <p class="eyebrow">How it works</p>
+        <h2>HEIC to JPG in three steps</h2>
+      </div>
+      <ol class="steps-list">
+        <li><strong>Choose an HEIC or HEIF image.</strong><span>The file stays on your device.</span></li>
+        <li><strong>Select the JPG quality.</strong><span>90% is a good balance for most photos.</span></li>
+        <li><strong>Download the JPG.</strong><span>The converted file is generated locally in your browser.</span></li>
+      </ol>
+    </section>
+
+    <section class="privacy-card">
+      <p class="eyebrow">Privacy</p>
+      <h2>Your photo does not get uploaded to us.</h2>
+      <p>The conversion runs in your browser. ConvertFileType does not receive or store the source HEIC image or the generated JPG. The converter loads its HEIC decoding library from a third-party content delivery network when needed.</p>
+    </section>
   </main>
-  <footer class="site-footer"><span>ConvertFileType.com</span><a href="/">Home</a></footer>
+
+  <footer class="site-footer"><span>ConvertFileType.com</span><a href="/privacy/">Privacy</a></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
+  <script src="/assets/js/heic-to-jpg.js" defer></script>
 </body>
 </html>
