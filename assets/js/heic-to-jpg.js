@@ -25,7 +25,9 @@
 
   const MAX_BYTES = 25 * 1024 * 1024;
   const ACCEPTED_EXTENSIONS = ['heic', 'heif'];
-  const CONVERSION_TIMEOUT_MS = 45000;
+  const CONVERSION_TIMEOUT_MS = 15000;
+  const PREVIEW_TIMEOUT_MS = 5000;
+
   let currentFile = null;
   let resultUrl = null;
   let runId = 0;
@@ -39,6 +41,9 @@
     const value = bytes / Math.pow(1024, index);
     return `${value >= 10 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
   };
+
+  const elapsedMs = () => performance.now() - startedAt;
+  const elapsed = () => `${(elapsedMs() / 1000).toFixed(1)}s elapsed`;
 
   const setProgress = (percent, label, detail = '') => {
     const value = Math.max(0, Math.min(100, percent));
@@ -54,9 +59,8 @@
     progress.hidden = true;
     progressBar.style.width = '0%';
     progressTrack.setAttribute('aria-valuenow', '0');
+    progressDetail.textContent = '';
   };
-
-  const elapsed = () => `${((performance.now() - startedAt) / 1000).toFixed(1)}s elapsed`;
 
   const setIdleButton = () => {
     converting = false;
@@ -70,6 +74,7 @@
     preview.removeAttribute('src');
     download.removeAttribute('href');
     download.removeAttribute('download');
+    resultSize.textContent = '';
     result.hidden = true;
   };
 
@@ -126,6 +131,44 @@
     })
   ]);
 
+  const renderHeifImage = (image) => new Promise((resolve, reject) => {
+    const width = image.get_width();
+    const height = image.get_height();
+    if (!width || !height) {
+      reject(new Error('HEIC image has invalid dimensions.'));
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d', { alpha: false });
+    if (!context) {
+      reject(new Error('Canvas is unavailable in this browser.'));
+      return;
+    }
+
+    const imageData = context.createImageData(width, height);
+    image.display(imageData, (displayData) => {
+      if (!displayData) {
+        reject(new Error('HEIC pixel decoding failed.'));
+        return;
+      }
+      context.putImageData(displayData, 0, 0);
+      resolve({ canvas, width, height });
+    });
+  });
+
+  const canvasToJpeg = (canvas, jpegQuality) => new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob || blob.size === 0) {
+        reject(new Error('JPG encoding failed.'));
+        return;
+      }
+      resolve(blob);
+    }, 'image/jpeg', jpegQuality);
+  });
+
   const waitForPreview = (url) => new Promise((resolve, reject) => {
     const testImage = new Image();
     testImage.onload = () => {
@@ -168,80 +211,89 @@
   convertButton.addEventListener('click', async () => {
     if (!currentFile || converting) return;
 
-    startedAt = performance.now();
     const activeRun = ++runId;
     const sourceFile = currentFile;
+    startedAt = performance.now();
     converting = true;
     convertButton.disabled = true;
     convertButton.textContent = 'Converting…';
     revokeResult();
 
-    if (typeof window.heic2any !== 'function') {
-      setProgress(5, 'Decoder unavailable', 'The HEIC decoder did not load.');
-      status.textContent = 'The HEIC converter could not load. Refresh the page and try again.';
+    if (!window.libheif || typeof window.libheif.HeifDecoder !== 'function') {
+      setProgress(0, 'Decoder unavailable', 'libheif did not load.');
+      status.textContent = 'The HEIC decoder could not load. Refresh the page and try again.';
       setIdleButton();
       return;
     }
 
+    let heifImage = null;
+
     try {
-      setProgress(10, 'Decoder loaded', `${formatBytes(sourceFile.size)} source file`);
-      status.textContent = 'Starting conversion on your device…';
+      const conversionPromise = (async () => {
+        setProgress(10, 'Reading HEIC file', `${formatBytes(sourceFile.size)} source file`);
+        status.textContent = 'Reading your HEIC file on this device…';
+        const buffer = await sourceFile.arrayBuffer();
+        if (activeRun !== runId || sourceFile !== currentFile) throw new Error('Conversion cancelled.');
 
-      setProgress(25, 'Decoding HEIC', elapsed());
-      const converted = await withTimeout(window.heic2any({
-        blob: sourceFile,
-        toType: 'image/jpeg',
-        quality: Number(quality.value) / 100
-      }), CONVERSION_TIMEOUT_MS, 'Conversion timed out.');
+        setProgress(25, 'Parsing HEIC container', elapsed());
+        const decoder = new window.libheif.HeifDecoder();
+        const images = decoder.decode(new Uint8Array(buffer));
+        if (!images || images.length === 0) throw new Error('No image was found in this HEIC file.');
+        heifImage = images[0];
 
-      if (activeRun !== runId || sourceFile !== currentFile) return;
+        setProgress(45, 'Decoding HEIC pixels', elapsed());
+        const rendered = await renderHeifImage(heifImage);
+        if (activeRun !== runId || sourceFile !== currentFile) throw new Error('Conversion cancelled.');
 
-      setProgress(65, 'Checking JPG output', elapsed());
-      const jpgBlob = Array.isArray(converted) ? converted[0] : converted;
-      if (!(jpgBlob instanceof Blob) || jpgBlob.size === 0) {
-        throw new Error('No converted image returned.');
-      }
+        setProgress(70, 'Encoding JPG', `${rendered.width} × ${rendered.height} · ${elapsed()}`);
+        const jpgBlob = await canvasToJpeg(rendered.canvas, Number(quality.value) / 100);
+        const type = (jpgBlob.type || '').toLowerCase();
+        if (type !== 'image/jpeg' && type !== 'image/jpg') {
+          throw new Error(`Unexpected output type: ${jpgBlob.type || 'unknown'}`);
+        }
 
-      const type = (jpgBlob.type || '').toLowerCase();
-      if (type && type !== 'image/jpeg' && type !== 'image/jpg') {
-        throw new Error(`Unexpected output type: ${jpgBlob.type}`);
-      }
+        setProgress(88, 'Validating JPG', `${formatBytes(jpgBlob.size)} output · ${elapsed()}`);
+        const candidateUrl = URL.createObjectURL(jpgBlob);
+        let dimensions;
+        try {
+          dimensions = await withTimeout(waitForPreview(candidateUrl), PREVIEW_TIMEOUT_MS, 'Preview timed out.');
+        } catch (error) {
+          URL.revokeObjectURL(candidateUrl);
+          throw error;
+        }
 
-      setProgress(80, 'Building preview', `${formatBytes(jpgBlob.size)} JPG · ${elapsed()}`);
-      const candidateUrl = URL.createObjectURL(jpgBlob);
-      let dimensions;
-      try {
-        dimensions = await withTimeout(waitForPreview(candidateUrl), 10000, 'Preview timed out.');
-      } catch (error) {
-        URL.revokeObjectURL(candidateUrl);
-        throw error;
-      }
+        if (activeRun !== runId || sourceFile !== currentFile) {
+          URL.revokeObjectURL(candidateUrl);
+          throw new Error('Conversion cancelled.');
+        }
 
-      if (activeRun !== runId || sourceFile !== currentFile) {
-        URL.revokeObjectURL(candidateUrl);
-        return;
-      }
+        setProgress(96, 'Preparing download', `${dimensions.width} × ${dimensions.height} · ${elapsed()}`);
+        resultUrl = candidateUrl;
+        const baseName = sourceFile.name.replace(/\.(heic|heif)$/i, '') || 'converted-image';
+        preview.src = resultUrl;
+        download.href = resultUrl;
+        download.download = `${baseName}.jpg`;
+        resultSize.textContent = `${formatBytes(jpgBlob.size)} JPG · ${dimensions.width} × ${dimensions.height}`;
+        result.hidden = false;
 
-      setProgress(95, 'Finalizing download', `${dimensions.width} × ${dimensions.height} · ${elapsed()}`);
-      resultUrl = candidateUrl;
-      const baseName = sourceFile.name.replace(/\.(heic|heif)$/i, '') || 'converted-image';
-      preview.src = resultUrl;
-      download.href = resultUrl;
-      download.download = `${baseName}.jpg`;
-      resultSize.textContent = `${formatBytes(jpgBlob.size)} JPG · ${dimensions.width} × ${dimensions.height}`;
-      result.hidden = false;
+        setProgress(100, 'Complete', `${elapsed()} total`);
+        status.textContent = 'Conversion complete.';
+      })();
 
-      setProgress(100, 'Complete', `${elapsed()} total`);
-      status.textContent = 'Conversion complete.';
+      await withTimeout(conversionPromise, CONVERSION_TIMEOUT_MS, 'Conversion timed out.');
     } catch (error) {
       if (activeRun !== runId) return;
       revokeResult();
       console.error('HEIC conversion failed', error);
-      setProgress(100, 'Conversion stopped', `${error?.message || 'Unknown conversion error'} · ${elapsed()}`);
-      status.textContent = error?.message === 'Conversion timed out.'
-        ? 'Conversion took too long. Try again or use a smaller HEIC file.'
-        : `Conversion failed: ${error?.message || 'Unknown error'}`;
+      const message = error?.message || 'Unknown conversion error';
+      setProgress(100, 'Conversion stopped', `${message} · ${elapsed()}`);
+      status.textContent = message === 'Conversion timed out.'
+        ? 'Conversion took too long. This file could not be processed quickly enough on this device.'
+        : `Conversion failed: ${message}`;
     } finally {
+      if (heifImage && typeof heifImage.free === 'function') {
+        try { heifImage.free(); } catch (_) {}
+      }
       if (activeRun === runId) setIdleButton();
     }
   });
