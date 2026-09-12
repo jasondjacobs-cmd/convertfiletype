@@ -36,15 +36,17 @@ jobs:
           grep -q "data-tool-grid" index.html
           grep -q "heic-to-jpg" assets/js/converters.js
           grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
-      - name: Check HEIC decoder v4 wiring
+      - name: Check HEIC decoder v5 wiring
         run: |
           grep -q 'data-heic-file' heic-to-jpg/index.html
           grep -q 'data-convert' heic-to-jpg/index.html
-          grep -q "import libheif from '/assets/vendor/libheif/libheif-bundle.mjs'" heic-to-jpg/index.html
-          grep -q 'window.libheif = libheif' heic-to-jpg/index.html
-          ! grep -q 'createLibheif' heic-to-jpg/index.html
-          grep -q '/assets/js/heic-to-jpg.js?v=12' heic-to-jpg/index.html
-          grep -q 'window.libheif.HeifDecoder' assets/js/heic-to-jpg.js
+          grep -q "import createLibheif from '/assets/vendor/libheif/libheif-bundle.mjs'" heic-to-jpg/index.html
+          grep -q 'window.libheifReady' heic-to-jpg/index.html
+          grep -q 'createLibheif()' heic-to-jpg/index.html
+          grep -q '/assets/js/heic-to-jpg.js?v=13' heic-to-jpg/index.html
+          grep -q 'window.libheifReady' assets/js/heic-to-jpg.js
+          grep -q 'DECODER_TIMEOUT_MS = 10000' assets/js/heic-to-jpg.js
+          grep -q 'new libheif.HeifDecoder' assets/js/heic-to-jpg.js
           grep -q 'decoder.decode(new Uint8Array(buffer))' assets/js/heic-to-jpg.js
           grep -q 'canvas.toBlob' assets/js/heic-to-jpg.js
           test -s assets/vendor/libheif/libheif-bundle.mjs
@@ -55,6 +57,7 @@ jobs:
         run: |
           grep -q 'thirdPartyDecoderRequests' tests/heic-browser-smoke.mjs
           grep -q 'self-hosted decoder request missing' tests/heic-browser-smoke.mjs
+          grep -q 'window.libheifReady' tests/heic-browser-smoke.mjs
           grep -q 'elapsed < 10000' tests/heic-browser-smoke.mjs
       - name: Check failure-state guardrails
         run: |
@@ -65,12 +68,13 @@ jobs:
           grep -q 'CONVERSION_TIMEOUT_MS = 15000' assets/js/heic-to-jpg.js
       - name: Check actual decoder stages
         run: |
+          grep -q "Loading HEIC decoder" assets/js/heic-to-jpg.js
           grep -q "Reading HEIC file" assets/js/heic-to-jpg.js
           grep -q "Parsing HEIC container" assets/js/heic-to-jpg.js
           grep -q "Decoding HEIC pixels" assets/js/heic-to-jpg.js
           grep -q "Encoding JPG" assets/js/heic-to-jpg.js
           grep -q "Validating JPG" assets/js/heic-to-jpg.js
-          grep -q 'Converter build: heic-v12-selfhosted-esm' heic-to-jpg/index.html
+          grep -q 'Converter build: heic-v13-selfhosted-ready' heic-to-jpg/index.html
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
