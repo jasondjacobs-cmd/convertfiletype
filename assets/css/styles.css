@@ -83,6 +83,13 @@ h2 { font-size: clamp(2rem, 4vw, 3.2rem); }
 .primary-action:disabled { opacity: .45; cursor: not-allowed; }
 .text-button { border: 0; padding: 6px 0; background: transparent; color: var(--accent); font-weight: 700; cursor: pointer; }
 .converter-status { margin: 14px 0 0; color: var(--muted); text-align: center; }
+.build-version { margin: 6px 0 0; color: #98a2b3; font-size: .75rem; text-align: center; }
+.conversion-progress { margin-top: 18px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); }
+.progress-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.progress-row span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress-track { height: 10px; overflow: hidden; border-radius: 999px; background: #dfe5ef; }
+.progress-track > span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--accent); transition: width .2s ease; }
+.conversion-progress small { display: block; margin-top: 9px; color: var(--muted); line-height: 1.4; }
 .conversion-result { margin-top: 24px; display: grid; grid-template-columns: minmax(0, 220px) 1fr; gap: 22px; align-items: center; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
 .conversion-result img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 12px; background: white; }
 .result-copy { display: grid; gap: 10px; }

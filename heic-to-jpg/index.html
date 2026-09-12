@@ -6,7 +6,7 @@
   <title>HEIC to JPG Converter | ConvertFileType</title>
   <meta name="description" content="Convert HEIC and HEIF images to JPG in your browser. Your source image stays on your device during conversion.">
   <link rel="canonical" href="https://convertfiletype.com/heic-to-jpg/">
-  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=4">
 </head>
 <body>
   <header class="site-header">
@@ -51,7 +51,20 @@
       </div>
 
       <button type="button" class="primary-action" data-convert disabled>Convert to JPG</button>
+
+      <div class="conversion-progress" data-progress hidden>
+        <div class="progress-row">
+          <strong data-progress-label>Preparing converter…</strong>
+          <span data-progress-percent>0%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress-track>
+          <span data-progress-bar></span>
+        </div>
+        <small data-progress-detail>Waiting to start.</small>
+      </div>
+
       <p class="converter-status" data-status role="status" aria-live="polite">Choose a file to begin.</p>
+      <p class="build-version" data-build-version>Converter build: heic-v4</p>
 
       <div class="conversion-result" data-result hidden>
         <img data-preview alt="Converted JPG preview">
@@ -88,6 +101,6 @@
   <footer class="site-footer"><span>ConvertFileType.com</span><a href="/privacy/">Privacy</a></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
-  <script src="/assets/js/heic-to-jpg.js" defer></script>
+  <script src="/assets/js/heic-to-jpg.js?v=4" defer></script>
 </body>
 </html>
