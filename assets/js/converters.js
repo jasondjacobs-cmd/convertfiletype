@@ -25,7 +25,7 @@ export const converters = [
     title: "JPG to PNG",
     description: "Convert JPG images into PNG files in your browser.",
     category: "image",
-    status: "planned"
+    status: "live"
   },
   {
     slug: "avif-to-jpg",
