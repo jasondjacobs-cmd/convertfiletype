@@ -44,7 +44,7 @@ try {
   const progress = await page.locator('[data-progress-percent]').textContent();
   const resultSize = await page.locator('[data-result-size]').textContent();
 
-  assert.equal(build?.trim(), 'Converter build: heic-v9-libheif-esm');
+  assert.equal(build?.trim(), 'Converter build: heic-v10-libheif-esm');
   assert.equal(resultHidden, false, 'result must be visible after success');
   assert.ok(previewSrc?.startsWith('blob:'), 'preview must use a generated blob URL');
   assert.ok(downloadHref?.startsWith('blob:'), 'download must use a generated blob URL');
