@@ -25,14 +25,19 @@ try {
   assert.ok(localDecoderRequest, `self-hosted decoder request missing. requests=${JSON.stringify(requestUrls)}`);
 
   try {
-    await page.waitForFunction(() => window.libheif && typeof window.libheif.HeifDecoder === 'function', null, { timeout: 30000 });
+    await page.waitForFunction(() => window.libheifReady && typeof window.libheifReady.then === 'function', null, { timeout: 5000 });
+    await page.evaluate(async () => {
+      const libheif = await window.libheifReady;
+      if (!libheif || typeof libheif.HeifDecoder !== 'function') throw new Error('HeifDecoder unavailable after readiness promise');
+    });
   } catch (error) {
-    const scripts = await page.locator('script[src]').evaluateAll((els) => els.map((el) => el.src));
     const moduleState = await page.evaluate(() => ({
+      readyType: typeof window.libheifReady,
       libheifType: typeof window.libheif,
-      libheifKeys: window.libheif ? Object.keys(window.libheif).slice(0, 20) : []
+      libheifKeys: window.libheif ? Object.keys(window.libheif).slice(0, 20) : [],
+      loadError: window.libheifLoadError || null
     }));
-    throw new Error(`libheif did not load. scripts=${JSON.stringify(scripts)} moduleState=${JSON.stringify(moduleState)} requests=${JSON.stringify(requestUrls)} console=${JSON.stringify(consoleMessages)}`);
+    throw new Error(`libheif did not initialize. moduleState=${JSON.stringify(moduleState)} requests=${JSON.stringify(requestUrls)} console=${JSON.stringify(consoleMessages)}`);
   }
 
   await page.setInputFiles('[data-heic-file]', fixture);
@@ -53,7 +58,7 @@ try {
   const progress = await page.locator('[data-progress-percent]').textContent();
   const resultSize = await page.locator('[data-result-size]').textContent();
 
-  assert.equal(build?.trim(), 'Converter build: heic-v11-selfhosted');
+  assert.equal(build?.trim(), 'Converter build: heic-v13-selfhosted-ready');
   assert.equal(resultHidden, false, 'result must be visible after success');
   assert.ok(previewSrc?.startsWith('blob:'), 'preview must use a generated blob URL');
   assert.ok(downloadHref?.startsWith('blob:'), 'download must use a generated blob URL');
