@@ -18,8 +18,14 @@ page.on('requestfailed', (request) => consoleMessages.push(`[requestfailed] ${re
 try {
   await page.goto(`${baseUrl}/heic-to-jpg/`, { waitUntil: 'networkidle', timeout: 30000 });
 
+  const inlineScripts = await page.locator('script:not([src])').count();
+  assert.equal(inlineScripts, 0, 'converter page must not use inline scripts because production CSP blocks them');
+
   const thirdPartyDecoderRequests = requestUrls.filter((url) => /jsdelivr|unpkg|libheif-js/i.test(url) && !url.startsWith(baseOrigin));
   assert.deepEqual(thirdPartyDecoderRequests, [], `decoder must be same-origin, saw ${JSON.stringify(thirdPartyDecoderRequests)}`);
+
+  const bootstrapRequest = requestUrls.find((url) => url.startsWith(`${baseOrigin}/assets/js/heic-libheif-bootstrap.mjs`));
+  assert.ok(bootstrapRequest, `CSP-safe decoder bootstrap request missing. requests=${JSON.stringify(requestUrls)}`);
 
   const localDecoderRequest = requestUrls.find((url) => url.startsWith(`${baseOrigin}/assets/vendor/libheif/libheif-bundle.mjs`));
   assert.ok(localDecoderRequest, `self-hosted decoder request missing. requests=${JSON.stringify(requestUrls)}`);
@@ -58,7 +64,7 @@ try {
   const progress = await page.locator('[data-progress-percent]').textContent();
   const resultSize = await page.locator('[data-result-size]').textContent();
 
-  assert.equal(build?.trim(), 'Converter build: heic-v13-selfhosted-ready');
+  assert.equal(build?.trim(), 'Converter build: heic-v14-csp-safe');
   assert.equal(resultHidden, false, 'result must be visible after success');
   assert.ok(previewSrc?.startsWith('blob:'), 'preview must use a generated blob URL');
   assert.ok(downloadHref?.startsWith('blob:'), 'download must use a generated blob URL');
