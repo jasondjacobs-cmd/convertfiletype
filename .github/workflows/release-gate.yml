@@ -36,13 +36,14 @@ jobs:
           grep -q "data-tool-grid" index.html
           grep -q "heic-to-jpg" assets/js/converters.js
           grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
-      - name: Check HEIC decoder v3 wiring
+      - name: Check HEIC decoder v4 wiring
         run: |
           grep -q 'data-heic-file' heic-to-jpg/index.html
           grep -q 'data-convert' heic-to-jpg/index.html
-          grep -q "import createLibheif from '/assets/vendor/libheif/libheif-bundle.mjs'" heic-to-jpg/index.html
-          grep -q 'window.libheif = await createLibheif()' heic-to-jpg/index.html
-          grep -q '/assets/js/heic-to-jpg.js?v=11' heic-to-jpg/index.html
+          grep -q "import libheif from '/assets/vendor/libheif/libheif-bundle.mjs'" heic-to-jpg/index.html
+          grep -q 'window.libheif = libheif' heic-to-jpg/index.html
+          ! grep -q 'createLibheif' heic-to-jpg/index.html
+          grep -q '/assets/js/heic-to-jpg.js?v=12' heic-to-jpg/index.html
           grep -q 'window.libheif.HeifDecoder' assets/js/heic-to-jpg.js
           grep -q 'decoder.decode(new Uint8Array(buffer))' assets/js/heic-to-jpg.js
           grep -q 'canvas.toBlob' assets/js/heic-to-jpg.js
@@ -69,7 +70,7 @@ jobs:
           grep -q "Decoding HEIC pixels" assets/js/heic-to-jpg.js
           grep -q "Encoding JPG" assets/js/heic-to-jpg.js
           grep -q "Validating JPG" assets/js/heic-to-jpg.js
-          grep -q 'Converter build: heic-v11-selfhosted' heic-to-jpg/index.html
+          grep -q 'Converter build: heic-v12-selfhosted-esm' heic-to-jpg/index.html
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
