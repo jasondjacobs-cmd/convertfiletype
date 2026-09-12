@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AVIF Encoder Proof | ConvertFileType</title>
+  <link rel="stylesheet" href="/assets/css/styles.css?v=15">
+</head>
+<body>
+  <main class="shell">
+    <section class="converter-card" aria-labelledby="poc-title">
+      <p class="eyebrow">Engineering proof</p>
+      <h1 id="poc-title">AVIF Encoder Foundation v1</h1>
+      <p>Private browser-only proof that a JPG can be decoded locally, encoded to a real AVIF with self-hosted WebAssembly, and decoded back by the browser.</p>
+      <p><strong>Converter build: avif-encoder-poc-v1</strong></p>
+
+      <label for="jpeg-file">JPG test image</label>
+      <input id="jpeg-file" data-jpeg-file type="file" accept="image/jpeg,.jpg,.jpeg">
+
+      <button type="button" data-run-proof disabled>Run AVIF proof</button>
+      <p data-status role="status">Choose a JPG to begin.</p>
+
+      <div data-result hidden>
+        <p><strong>PASS</strong></p>
+        <p data-result-details></p>
+        <a data-download>Download proof AVIF</a>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./poc.mjs?v=1"></script>
+</body>
+</html>
