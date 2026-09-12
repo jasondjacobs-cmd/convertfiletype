@@ -1,0 +1,26 @@
+name: webp-to-jpg-browser-smoke
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser test dependency
+        run: |
+          npm init -y
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start site
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/site.log 2>&1 &
+          sleep 2
+      - name: Run WebP conversion smoke test
+        env:
+          SITE_URL: http://127.0.0.1:4173
+        run: node tests/webp-to-jpg-browser-smoke.mjs
