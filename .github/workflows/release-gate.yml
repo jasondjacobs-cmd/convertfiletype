@@ -86,7 +86,7 @@ jobs:
           grep -q 'elapsed < 10000' tests/heic-browser-smoke.mjs
           grep -q 'png-v1-native' tests/png-to-jpg-browser-smoke.mjs
           grep -q 'image/jpeg' tests/png-to-jpg-browser-smoke.mjs
-          grep -q 'transparent corner should be white' tests/png-to-jpg-browser-smoke.mjs
+          grep -q 'transparent corner should remain near-white after lossy JPEG encoding' tests/png-to-jpg-browser-smoke.mjs
           grep -q 'elapsed < 10000' tests/png-to-jpg-browser-smoke.mjs
       - name: Check failure-state guardrails
         run: |
