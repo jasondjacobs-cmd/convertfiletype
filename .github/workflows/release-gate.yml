@@ -24,6 +24,9 @@ jobs:
           test -f assets/js/png-to-jpg.js
           test -f png-to-jpg/index.html
           test -f tests/png-to-jpg-browser-smoke.mjs
+          test -f assets/js/jpg-to-png.js
+          test -f jpg-to-png/index.html
+          test -f tests/jpg-to-png-browser-smoke.mjs
           test -f privacy/index.html
           test -f robots.txt
           test -f sitemap.xml
@@ -38,13 +41,17 @@ jobs:
           node --check tests/heic-browser-smoke.mjs
           node --check assets/js/png-to-jpg.js
           node --check tests/png-to-jpg-browser-smoke.mjs
+          node --check assets/js/jpg-to-png.js
+          node --check tests/jpg-to-png-browser-smoke.mjs
       - name: Check key routes
         run: |
           grep -q "data-tool-grid" index.html
           grep -q "heic-to-jpg" assets/js/converters.js
           grep -q "png-to-jpg" assets/js/converters.js
+          grep -q "jpg-to-png" assets/js/converters.js
           grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
           grep -q "convertfiletype.com/png-to-jpg/" sitemap.xml
+          grep -q "convertfiletype.com/jpg-to-png/" sitemap.xml
       - name: Check HEIC CSP-safe wiring
         run: |
           grep -q 'data-heic-file' heic-to-jpg/index.html
@@ -76,6 +83,16 @@ jobs:
           grep -q 'canvas.toBlob' assets/js/png-to-jpg.js
           grep -q "fillStyle = background.value === 'black'" assets/js/png-to-jpg.js
           grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/png-to-jpg.js
+      - name: Check JPG to PNG wiring
+        run: |
+          grep -q 'data-jpg-file' jpg-to-png/index.html
+          grep -q '/assets/js/jpg-to-png.js?v=1' jpg-to-png/index.html
+          grep -q 'Converter build: jpg-png-v1-native' jpg-to-png/index.html
+          ! grep -q '<script type="module">' jpg-to-png/index.html
+          grep -q "image/png" assets/js/jpg-to-png.js
+          grep -q 'canvas.toBlob' assets/js/jpg-to-png.js
+          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/jpg-to-png.js
+          grep -q 'Generated PNG signature is invalid' assets/js/jpg-to-png.js
       - name: Check browser gates
         run: |
           grep -q 'thirdPartyDecoderRequests' tests/heic-browser-smoke.mjs
@@ -88,6 +105,10 @@ jobs:
           grep -q 'image/jpeg' tests/png-to-jpg-browser-smoke.mjs
           grep -q 'transparent corner should remain near-white after lossy JPEG encoding' tests/png-to-jpg-browser-smoke.mjs
           grep -q 'elapsed < 10000' tests/png-to-jpg-browser-smoke.mjs
+          grep -q 'jpg-png-v1-native' tests/jpg-to-png-browser-smoke.mjs
+          grep -q 'image/png' tests/jpg-to-png-browser-smoke.mjs
+          grep -q '137,80,78,71,13,10,26,10' tests/jpg-to-png-browser-smoke.mjs
+          grep -q 'elapsed < 10000' tests/jpg-to-png-browser-smoke.mjs
       - name: Check failure-state guardrails
         run: |
           grep -q '^\[hidden\] { display: none !important; }' assets/css/styles.css
@@ -98,6 +119,9 @@ jobs:
           grep -q 'result.hidden = true' assets/js/png-to-jpg.js
           grep -q 'result.hidden = false' assets/js/png-to-jpg.js
           grep -q 'activeRun !== runId' assets/js/png-to-jpg.js
+          grep -q 'result.hidden = true' assets/js/jpg-to-png.js
+          grep -q 'result.hidden = false' assets/js/jpg-to-png.js
+          grep -q 'activeRun !== runId' assets/js/jpg-to-png.js
       - name: Check actual converter stages
         run: |
           grep -q "Loading HEIC decoder" assets/js/heic-to-jpg.js
@@ -112,6 +136,11 @@ jobs:
           grep -q "Preparing image" assets/js/png-to-jpg.js
           grep -q "Encoding JPG" assets/js/png-to-jpg.js
           grep -q "Validating JPG" assets/js/png-to-jpg.js
+          grep -q "Reading JPG file" assets/js/jpg-to-png.js
+          grep -q "Decoding JPG" assets/js/jpg-to-png.js
+          grep -q "Preparing image" assets/js/jpg-to-png.js
+          grep -q "Encoding PNG" assets/js/jpg-to-png.js
+          grep -q "Validating PNG" assets/js/jpg-to-png.js
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
