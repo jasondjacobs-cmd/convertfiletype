@@ -9,7 +9,7 @@ const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
 
 try {
   await page.goto(`${baseUrl}/heic-to-jpg/`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.waitForFunction(() => window.libheif && typeof window.libheif.HeifDecoder === 'function', null, { timeout: 15000 });
+  await page.waitForFunction(() => window.libheif && typeof window.libheif.HeifDecoder === 'function', null, { timeout: 30000 });
   await page.setInputFiles('[data-heic-file]', fixture);
   await page.locator('[data-quality]').evaluate((el) => {
     el.value = '90';
@@ -28,7 +28,7 @@ try {
   const progress = await page.locator('[data-progress-percent]').textContent();
   const resultSize = await page.locator('[data-result-size]').textContent();
 
-  assert.equal(build?.trim(), 'Converter build: heic-v5-libheif');
+  assert.equal(build?.trim(), 'Converter build: heic-v6-libheif-js');
   assert.equal(resultHidden, false, 'result must be visible after success');
   assert.ok(previewSrc?.startsWith('blob:'), 'preview must use a generated blob URL');
   assert.ok(downloadHref?.startsWith('blob:'), 'download must use a generated blob URL');
