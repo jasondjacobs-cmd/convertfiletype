@@ -23,6 +23,11 @@ jobs:
           test -f robots.txt
           test -f sitemap.xml
           test -f _headers
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/js/app.js
+          node --check assets/js/converters.js
+          node --check assets/js/heic-to-jpg.js
       - name: Check key routes
         run: |
           grep -q "data-tool-grid" index.html
@@ -38,6 +43,19 @@ jobs:
           grep -q "toType: 'image/jpeg'" assets/js/heic-to-jpg.js
           grep -q '25 \* 1024 \* 1024' assets/js/heic-to-jpg.js
           ! grep -q 'conversion engine will be added' heic-to-jpg/index.html
+      - name: Check conversion success guardrails
+        run: |
+          grep -q 'CONVERSION_TIMEOUT_MS' assets/js/heic-to-jpg.js
+          grep -q 'waitForPreview' assets/js/heic-to-jpg.js
+          grep -q 'jpgBlob.size === 0' assets/js/heic-to-jpg.js
+          grep -q "type !== 'image/jpeg'" assets/js/heic-to-jpg.js
+          grep -q 'activeRun !== runId' assets/js/heic-to-jpg.js
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('assets/js/heic-to-jpg.js').read_text()
+          assert text.index('await withTimeout(waitForPreview(candidateUrl)') < text.index('result.hidden = false')
+          assert text.index('download.href = resultUrl') < text.index('result.hidden = false')
+          PY
       - name: Check security policy
         run: |
           grep -q 'https://cdn.jsdelivr.net' _headers
