@@ -7,6 +7,13 @@ export const converters = [
     status: "live"
   },
   {
+    slug: "webp-to-jpg",
+    title: "WebP to JPG",
+    description: "Convert WebP images into widely supported JPG files in your browser.",
+    category: "image",
+    status: "live"
+  },
+  {
     slug: "webp-to-png",
     title: "WebP to PNG",
     description: "Turn WebP images into PNG files for broader compatibility.",
