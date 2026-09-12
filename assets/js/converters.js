@@ -4,7 +4,7 @@ export const converters = [
     title: "HEIC to JPG",
     description: "Convert iPhone HEIC images to widely supported JPG files.",
     category: "image",
-    status: "planned"
+    status: "live"
   },
   {
     slug: "webp-to-png",
@@ -16,9 +16,9 @@ export const converters = [
   {
     slug: "png-to-jpg",
     title: "PNG to JPG",
-    description: "Create smaller JPG versions of PNG images.",
+    description: "Create smaller JPG versions of PNG images in your browser.",
     category: "image",
-    status: "planned"
+    status: "live"
   },
   {
     slug: "jpg-to-png",
