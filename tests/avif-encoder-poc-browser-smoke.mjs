@@ -10,6 +10,7 @@ const pageErrors = [];
 
 page.on('request', (request) => {
   const url = new URL(request.url());
+  if (!['http:', 'https:'].includes(url.protocol)) return;
   if (!['127.0.0.1', 'localhost'].includes(url.hostname)) thirdPartyRequests.push(request.url());
 });
 page.on('console', (message) => {
