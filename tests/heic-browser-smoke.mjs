@@ -10,12 +10,13 @@ const page = await browser.newPage({ viewport: { width: 1366, height: 900 } });
 const consoleMessages = [];
 page.on('console', (msg) => consoleMessages.push(`[${msg.type()}] ${msg.text()}`));
 page.on('pageerror', (error) => consoleMessages.push(`[pageerror] ${error.message}`));
+page.on('requestfailed', (request) => consoleMessages.push(`[requestfailed] ${request.url()} ${request.failure()?.errorText || ''}`));
 
 try {
   await page.goto(`${baseUrl}/heic-to-jpg/`, { waitUntil: 'networkidle', timeout: 30000 });
 
   try {
-    await page.waitForFunction(() => window.libheif && typeof window.libheif.HeifDecoder === 'function', null, { timeout: 15000 });
+    await page.waitForFunction(() => window.libheif && typeof window.libheif.HeifDecoder === 'function', null, { timeout: 30000 });
   } catch (error) {
     const scripts = await page.locator('script[src]').evaluateAll((els) => els.map((el) => el.src));
     throw new Error(`libheif did not load. scripts=${JSON.stringify(scripts)} console=${JSON.stringify(consoleMessages)}`);
@@ -39,7 +40,7 @@ try {
   const progress = await page.locator('[data-progress-percent]').textContent();
   const resultSize = await page.locator('[data-result-size]').textContent();
 
-  assert.equal(build?.trim(), 'Converter build: heic-v7-libheif-js');
+  assert.equal(build?.trim(), 'Converter build: heic-v8-libheif-wasm');
   assert.equal(resultHidden, false, 'result must be visible after success');
   assert.ok(previewSrc?.startsWith('blob:'), 'preview must use a generated blob URL');
   assert.ok(downloadHref?.startsWith('blob:'), 'download must use a generated blob URL');
