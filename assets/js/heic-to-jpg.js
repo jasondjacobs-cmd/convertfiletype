@@ -25,6 +25,7 @@
 
   const MAX_BYTES = 25 * 1024 * 1024;
   const ACCEPTED_EXTENSIONS = ['heic', 'heif'];
+  const DECODER_TIMEOUT_MS = 10000;
   const CONVERSION_TIMEOUT_MS = 15000;
   const PREVIEW_TIMEOUT_MS = 5000;
 
@@ -103,13 +104,11 @@
       reset();
       return;
     }
-
     if (!isAcceptedFile(file)) {
       reset();
       status.textContent = 'Please choose an HEIC or HEIF image.';
       return;
     }
-
     if (file.size > MAX_BYTES) {
       reset();
       status.textContent = 'That file is larger than the 25 MB limit.';
@@ -126,34 +125,23 @@
 
   const withTimeout = (promise, timeoutMs, message) => Promise.race([
     promise,
-    new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error(message)), timeoutMs);
-    })
+    new Promise((_, reject) => window.setTimeout(() => reject(new Error(message)), timeoutMs))
   ]);
 
   const renderHeifImage = (image) => new Promise((resolve, reject) => {
     const width = image.get_width();
     const height = image.get_height();
-    if (!width || !height) {
-      reject(new Error('HEIC image has invalid dimensions.'));
-      return;
-    }
+    if (!width || !height) return reject(new Error('HEIC image has invalid dimensions.'));
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext('2d', { alpha: false });
-    if (!context) {
-      reject(new Error('Canvas is unavailable in this browser.'));
-      return;
-    }
+    if (!context) return reject(new Error('Canvas is unavailable in this browser.'));
 
     const imageData = context.createImageData(width, height);
     image.display(imageData, (displayData) => {
-      if (!displayData) {
-        reject(new Error('HEIC pixel decoding failed.'));
-        return;
-      }
+      if (!displayData) return reject(new Error('HEIC pixel decoding failed.'));
       context.putImageData(displayData, 0, 0);
       resolve({ canvas, width, height });
     });
@@ -161,23 +149,16 @@
 
   const canvasToJpeg = (canvas, jpegQuality) => new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
-      if (!blob || blob.size === 0) {
-        reject(new Error('JPG encoding failed.'));
-        return;
-      }
+      if (!blob || blob.size === 0) return reject(new Error('JPG encoding failed.'));
       resolve(blob);
     }, 'image/jpeg', jpegQuality);
   });
 
   const waitForPreview = (url) => new Promise((resolve, reject) => {
     const testImage = new Image();
-    testImage.onload = () => {
-      if (testImage.naturalWidth > 0 && testImage.naturalHeight > 0) {
-        resolve({ width: testImage.naturalWidth, height: testImage.naturalHeight });
-      } else {
-        reject(new Error('Converted image has invalid dimensions.'));
-      }
-    };
+    testImage.onload = () => testImage.naturalWidth > 0 && testImage.naturalHeight > 0
+      ? resolve({ width: testImage.naturalWidth, height: testImage.naturalHeight })
+      : reject(new Error('Converted image has invalid dimensions.'));
     testImage.onerror = () => reject(new Error('Converted JPG could not be decoded.'));
     testImage.src = url;
   });
@@ -185,28 +166,17 @@
   input.addEventListener('change', () => selectFile(input.files?.[0]));
   clearButton.addEventListener('click', reset);
   another.addEventListener('click', reset);
+  quality.addEventListener('input', () => { qualityOutput.textContent = `${quality.value}%`; });
 
-  quality.addEventListener('input', () => {
-    qualityOutput.textContent = `${quality.value}%`;
-  });
-
-  ['dragenter', 'dragover'].forEach((eventName) => {
-    dropZone.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      dropZone.classList.add('is-dragging');
-    });
-  });
-
-  ['dragleave', 'drop'].forEach((eventName) => {
-    dropZone.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      dropZone.classList.remove('is-dragging');
-    });
-  });
-
-  dropZone.addEventListener('drop', (event) => {
-    selectFile(event.dataTransfer?.files?.[0]);
-  });
+  ['dragenter', 'dragover'].forEach((eventName) => dropZone.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    dropZone.classList.add('is-dragging');
+  }));
+  ['dragleave', 'drop'].forEach((eventName) => dropZone.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    dropZone.classList.remove('is-dragging');
+  }));
+  dropZone.addEventListener('drop', (event) => selectFile(event.dataTransfer?.files?.[0]));
 
   convertButton.addEventListener('click', async () => {
     if (!currentFile || converting) return;
@@ -219,13 +189,25 @@
     convertButton.textContent = 'Converting…';
     revokeResult();
 
-    if (!window.libheif || typeof window.libheif.HeifDecoder !== 'function') {
-      setProgress(0, 'Decoder unavailable', 'libheif did not load.');
+    let libheif;
+    setProgress(2, 'Loading HEIC decoder', 'Starting local decoder…');
+    status.textContent = 'Loading the HEIC decoder on this device…';
+    try {
+      const decoderReady = window.libheifReady || (window.libheif ? Promise.resolve(window.libheif) : null);
+      if (!decoderReady) throw new Error('Decoder startup was not created.');
+      libheif = await withTimeout(decoderReady, DECODER_TIMEOUT_MS, 'Decoder startup timed out.');
+      if (!libheif || typeof libheif.HeifDecoder !== 'function') throw new Error('HEIC decoder did not initialize.');
+      window.libheif = libheif;
+    } catch (error) {
+      const message = window.libheifLoadError || error?.message || 'libheif did not load.';
+      revokeResult();
+      setProgress(0, 'Decoder unavailable', message);
       status.textContent = 'The HEIC decoder could not load. Refresh the page and try again.';
       setIdleButton();
       return;
     }
 
+    if (activeRun !== runId || sourceFile !== currentFile) return;
     let heifImage = null;
 
     try {
@@ -236,7 +218,7 @@
         if (activeRun !== runId || sourceFile !== currentFile) throw new Error('Conversion cancelled.');
 
         setProgress(25, 'Parsing HEIC container', elapsed());
-        const decoder = new window.libheif.HeifDecoder();
+        const decoder = new libheif.HeifDecoder();
         const images = decoder.decode(new Uint8Array(buffer));
         if (!images || images.length === 0) throw new Error('No image was found in this HEIC file.');
         heifImage = images[0];
@@ -248,9 +230,7 @@
         setProgress(70, 'Encoding JPG', `${rendered.width} × ${rendered.height} · ${elapsed()}`);
         const jpgBlob = await canvasToJpeg(rendered.canvas, Number(quality.value) / 100);
         const type = (jpgBlob.type || '').toLowerCase();
-        if (type !== 'image/jpeg' && type !== 'image/jpg') {
-          throw new Error(`Unexpected output type: ${jpgBlob.type || 'unknown'}`);
-        }
+        if (type !== 'image/jpeg' && type !== 'image/jpg') throw new Error(`Unexpected output type: ${jpgBlob.type || 'unknown'}`);
 
         setProgress(88, 'Validating JPG', `${formatBytes(jpgBlob.size)} output · ${elapsed()}`);
         const candidateUrl = URL.createObjectURL(jpgBlob);
@@ -275,7 +255,6 @@
         download.download = `${baseName}.jpg`;
         resultSize.textContent = `${formatBytes(jpgBlob.size)} JPG · ${dimensions.width} × ${dimensions.height}`;
         result.hidden = false;
-
         setProgress(100, 'Complete', `${elapsed()} total`);
         status.textContent = 'Conversion complete.';
       })();
