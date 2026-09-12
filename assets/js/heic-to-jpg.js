@@ -11,6 +11,12 @@
   const qualityOutput = document.querySelector('[data-quality-output]');
   const convertButton = document.querySelector('[data-convert]');
   const status = document.querySelector('[data-status]');
+  const progress = document.querySelector('[data-progress]');
+  const progressLabel = document.querySelector('[data-progress-label]');
+  const progressPercent = document.querySelector('[data-progress-percent]');
+  const progressTrack = document.querySelector('[data-progress-track]');
+  const progressBar = document.querySelector('[data-progress-bar]');
+  const progressDetail = document.querySelector('[data-progress-detail]');
   const result = document.querySelector('[data-result]');
   const resultSize = document.querySelector('[data-result-size]');
   const preview = document.querySelector('[data-preview]');
@@ -24,6 +30,7 @@
   let resultUrl = null;
   let runId = 0;
   let converting = false;
+  let startedAt = 0;
 
   const formatBytes = (bytes) => {
     if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
@@ -32,6 +39,24 @@
     const value = bytes / Math.pow(1024, index);
     return `${value >= 10 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
   };
+
+  const setProgress = (percent, label, detail = '') => {
+    const value = Math.max(0, Math.min(100, percent));
+    progress.hidden = false;
+    progressLabel.textContent = label;
+    progressPercent.textContent = `${value}%`;
+    progressTrack.setAttribute('aria-valuenow', String(value));
+    progressBar.style.width = `${value}%`;
+    progressDetail.textContent = detail;
+  };
+
+  const hideProgress = () => {
+    progress.hidden = true;
+    progressBar.style.width = '0%';
+    progressTrack.setAttribute('aria-valuenow', '0');
+  };
+
+  const elapsed = () => `${((performance.now() - startedAt) / 1000).toFixed(1)}s elapsed`;
 
   const setIdleButton = () => {
     converting = false;
@@ -59,6 +84,7 @@
     input.value = '';
     selected.hidden = true;
     revokeResult();
+    hideProgress();
     status.textContent = 'Choose a file to begin.';
     setIdleButton();
   };
@@ -66,6 +92,7 @@
   const selectFile = (file) => {
     runId += 1;
     revokeResult();
+    hideProgress();
 
     if (!file) {
       reset();
@@ -92,18 +119,21 @@
     setIdleButton();
   };
 
-  const withTimeout = (promise, timeoutMs) => Promise.race([
+  const withTimeout = (promise, timeoutMs, message) => Promise.race([
     promise,
     new Promise((_, reject) => {
-      window.setTimeout(() => reject(new Error('Conversion timed out.')), timeoutMs);
+      window.setTimeout(() => reject(new Error(message)), timeoutMs);
     })
   ]);
 
   const waitForPreview = (url) => new Promise((resolve, reject) => {
     const testImage = new Image();
     testImage.onload = () => {
-      if (testImage.naturalWidth > 0 && testImage.naturalHeight > 0) resolve();
-      else reject(new Error('Converted image has invalid dimensions.'));
+      if (testImage.naturalWidth > 0 && testImage.naturalHeight > 0) {
+        resolve({ width: testImage.naturalWidth, height: testImage.naturalHeight });
+      } else {
+        reject(new Error('Converted image has invalid dimensions.'));
+      }
     };
     testImage.onerror = () => reject(new Error('Converted JPG could not be decoded.'));
     testImage.src = url;
@@ -138,28 +168,35 @@
   convertButton.addEventListener('click', async () => {
     if (!currentFile || converting) return;
 
-    if (typeof window.heic2any !== 'function') {
-      status.textContent = 'The HEIC converter could not load. Check your connection and try again.';
-      return;
-    }
-
+    startedAt = performance.now();
     const activeRun = ++runId;
     const sourceFile = currentFile;
     converting = true;
     convertButton.disabled = true;
     convertButton.textContent = 'Converting…';
-    status.textContent = 'Converting on your device…';
     revokeResult();
 
+    if (typeof window.heic2any !== 'function') {
+      setProgress(5, 'Decoder unavailable', 'The HEIC decoder did not load.');
+      status.textContent = 'The HEIC converter could not load. Refresh the page and try again.';
+      setIdleButton();
+      return;
+    }
+
     try {
+      setProgress(10, 'Decoder loaded', `${formatBytes(sourceFile.size)} source file`);
+      status.textContent = 'Starting conversion on your device…';
+
+      setProgress(25, 'Decoding HEIC', elapsed());
       const converted = await withTimeout(window.heic2any({
         blob: sourceFile,
         toType: 'image/jpeg',
         quality: Number(quality.value) / 100
-      }), CONVERSION_TIMEOUT_MS);
+      }), CONVERSION_TIMEOUT_MS, 'Conversion timed out.');
 
       if (activeRun !== runId || sourceFile !== currentFile) return;
 
+      setProgress(65, 'Checking JPG output', elapsed());
       const jpgBlob = Array.isArray(converted) ? converted[0] : converted;
       if (!(jpgBlob instanceof Blob) || jpgBlob.size === 0) {
         throw new Error('No converted image returned.');
@@ -170,9 +207,11 @@
         throw new Error(`Unexpected output type: ${jpgBlob.type}`);
       }
 
+      setProgress(80, 'Building preview', `${formatBytes(jpgBlob.size)} JPG · ${elapsed()}`);
       const candidateUrl = URL.createObjectURL(jpgBlob);
+      let dimensions;
       try {
-        await withTimeout(waitForPreview(candidateUrl), 10000);
+        dimensions = await withTimeout(waitForPreview(candidateUrl), 10000, 'Preview timed out.');
       } catch (error) {
         URL.revokeObjectURL(candidateUrl);
         throw error;
@@ -183,21 +222,25 @@
         return;
       }
 
+      setProgress(95, 'Finalizing download', `${dimensions.width} × ${dimensions.height} · ${elapsed()}`);
       resultUrl = candidateUrl;
       const baseName = sourceFile.name.replace(/\.(heic|heif)$/i, '') || 'converted-image';
       preview.src = resultUrl;
       download.href = resultUrl;
       download.download = `${baseName}.jpg`;
-      resultSize.textContent = `${formatBytes(jpgBlob.size)} JPG`;
+      resultSize.textContent = `${formatBytes(jpgBlob.size)} JPG · ${dimensions.width} × ${dimensions.height}`;
       result.hidden = false;
+
+      setProgress(100, 'Complete', `${elapsed()} total`);
       status.textContent = 'Conversion complete.';
     } catch (error) {
       if (activeRun !== runId) return;
       revokeResult();
       console.error('HEIC conversion failed', error);
+      setProgress(100, 'Conversion stopped', `${error?.message || 'Unknown conversion error'} · ${elapsed()}`);
       status.textContent = error?.message === 'Conversion timed out.'
         ? 'Conversion took too long. Try again or use a smaller HEIC file.'
-        : 'We could not create a valid JPG from that file. Try a different HEIC or HEIF image.';
+        : `Conversion failed: ${error?.message || 'Unknown error'}`;
     } finally {
       if (activeRun === runId) setIdleButton();
     }
