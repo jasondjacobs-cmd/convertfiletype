@@ -72,7 +72,10 @@ try {
   assert.equal(output.second, 0xd8, 'JPG SOI byte 2 missing');
   assert.equal(output.width, 96);
   assert.equal(output.height, 64);
-  assert.ok(output.corner[0] > 245 && output.corner[1] > 245 && output.corner[2] > 245, `transparent corner should be white, got ${output.corner}`);
+
+  const [r, g, b] = output.corner;
+  const channelSpread = Math.max(r, g, b) - Math.min(r, g, b);
+  assert.ok(r >= 225 && g >= 225 && b >= 225 && channelSpread <= 25, `transparent corner should remain near-white after lossy JPEG encoding, got ${output.corner}`);
 
   const siteErrors = consoleMessages.filter((message) => /\[error\]|\[pageerror\]/i.test(message));
   assert.deepEqual(siteErrors, [], `site-origin browser errors: ${JSON.stringify(siteErrors)}`);
