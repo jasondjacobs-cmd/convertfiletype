@@ -23,49 +23,47 @@ jobs:
           test -f robots.txt
           test -f sitemap.xml
           test -f _headers
+          test -f tests/heic-browser-smoke.mjs
       - name: Check JavaScript syntax
         run: |
           node --check assets/js/app.js
           node --check assets/js/converters.js
           node --check assets/js/heic-to-jpg.js
+          node --check tests/heic-browser-smoke.mjs
       - name: Check key routes
         run: |
           grep -q "data-tool-grid" index.html
           grep -q "heic-to-jpg" assets/js/converters.js
           grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
-      - name: Check HEIC converter wiring
+      - name: Check HEIC decoder v2 wiring
         run: |
           grep -q 'data-heic-file' heic-to-jpg/index.html
           grep -q 'data-convert' heic-to-jpg/index.html
-          grep -q 'heic2any@0.0.4' heic-to-jpg/index.html
-          grep -q '/assets/js/heic-to-jpg.js?v=4' heic-to-jpg/index.html
-          grep -q 'window.heic2any' assets/js/heic-to-jpg.js
-          grep -q "toType: 'image/jpeg'" assets/js/heic-to-jpg.js
-          grep -q '25 \* 1024 \* 1024' assets/js/heic-to-jpg.js
-          ! grep -q 'conversion engine will be added' heic-to-jpg/index.html
-      - name: Check conversion success guardrails
+          grep -q 'libheif-js@1.23.2/libheif-wasm/libheif-bundle.mjs' heic-to-jpg/index.html
+          grep -q 'window.libheif = await createLibheif()' heic-to-jpg/index.html
+          grep -q '/assets/js/heic-to-jpg.js?v=10' heic-to-jpg/index.html
+          grep -q 'window.libheif.HeifDecoder' assets/js/heic-to-jpg.js
+          grep -q 'decoder.decode(new Uint8Array(buffer))' assets/js/heic-to-jpg.js
+          grep -q 'canvas.toBlob' assets/js/heic-to-jpg.js
+          ! grep -q 'heic2any' heic-to-jpg/index.html
+          ! grep -q 'window.heic2any' assets/js/heic-to-jpg.js
+      - name: Check failure-state guardrails
         run: |
-          grep -q 'CONVERSION_TIMEOUT_MS' assets/js/heic-to-jpg.js
-          grep -q 'waitForPreview' assets/js/heic-to-jpg.js
-          grep -q 'jpgBlob.size === 0' assets/js/heic-to-jpg.js
-          grep -q "type !== 'image/jpeg'" assets/js/heic-to-jpg.js
+          grep -q '^\[hidden\] { display: none !important; }' assets/css/styles.css
+          grep -q 'result.hidden = true' assets/js/heic-to-jpg.js
+          grep -q 'result.hidden = false' assets/js/heic-to-jpg.js
           grep -q 'activeRun !== runId' assets/js/heic-to-jpg.js
-          python - <<'PY'
-          from pathlib import Path
-          text = Path('assets/js/heic-to-jpg.js').read_text()
-          assert text.index('await withTimeout(waitForPreview(candidateUrl)') < text.index('result.hidden = false')
-          assert text.index('download.href = resultUrl') < text.index('result.hidden = false')
-          PY
-      - name: Check progress diagnostics
+          grep -q 'CONVERSION_TIMEOUT_MS = 15000' assets/js/heic-to-jpg.js
+      - name: Check actual decoder stages
         run: |
-          grep -q 'data-progress' heic-to-jpg/index.html
-          grep -q 'data-progress-percent' heic-to-jpg/index.html
-          grep -q 'Converter build: heic-v4' heic-to-jpg/index.html
-          grep -q "setProgress(25, 'Decoding HEIC'" assets/js/heic-to-jpg.js
-          grep -q "setProgress(65, 'Checking JPG output'" assets/js/heic-to-jpg.js
-          grep -q "setProgress(80, 'Building preview'" assets/js/heic-to-jpg.js
-          grep -q "setProgress(100, 'Complete'" assets/js/heic-to-jpg.js
+          grep -q "Reading HEIC file" assets/js/heic-to-jpg.js
+          grep -q "Parsing HEIC container" assets/js/heic-to-jpg.js
+          grep -q "Decoding HEIC pixels" assets/js/heic-to-jpg.js
+          grep -q "Encoding JPG" assets/js/heic-to-jpg.js
+          grep -q "Validating JPG" assets/js/heic-to-jpg.js
+          grep -q 'Converter build: heic-v10-libheif-esm' heic-to-jpg/index.html
       - name: Check security policy
         run: |
           grep -q 'https://cdn.jsdelivr.net' _headers
+          grep -q "'wasm-unsafe-eval'" _headers
           grep -q "worker-src 'self' blob:" _headers
