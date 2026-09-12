@@ -18,3 +18,7 @@ ConvertFileType is a privacy-first browser utility site for common file conversi
 4. Compression and resize utilities
 5. Analytics/consent layer
 6. Display-ad provider after traffic and policy review
+
+## Deployment
+
+Cloudflare Pages deploys production from the `main` branch.
