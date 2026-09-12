@@ -1,10 +1,8 @@
 name: release-gate
-
 on:
   pull_request:
   push:
     branches: [main]
-
 jobs:
   static-checks:
     runs-on: ubuntu-latest
@@ -12,83 +10,50 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check required files
         run: |
-          test -f index.html
-          test -f assets/css/styles.css
-          test -f assets/js/app.js
-          test -f assets/js/converters.js
-          test -f assets/js/heic-to-jpg.js
-          test -f assets/js/heic-libheif-bootstrap.mjs
-          test -f assets/vendor/libheif/libheif-bundle.mjs
-          test -f heic-to-jpg/index.html
-          test -f assets/js/png-to-jpg.js
-          test -f png-to-jpg/index.html
-          test -f tests/png-to-jpg-browser-smoke.mjs
-          test -f assets/js/jpg-to-png.js
-          test -f jpg-to-png/index.html
-          test -f tests/jpg-to-png-browser-smoke.mjs
-          test -f assets/js/webp-to-jpg.js
-          test -f webp-to-jpg/index.html
-          test -f tests/webp-to-jpg-browser-smoke.mjs
-          test -f assets/js/webp-to-png.js
-          test -f webp-to-png/index.html
-          test -f tests/webp-to-png-browser-smoke.mjs
-          test -f privacy/index.html
-          test -f robots.txt
-          test -f sitemap.xml
-          test -f _headers
-          test -f tests/heic-browser-smoke.mjs
+          test -f index.html && test -f assets/css/styles.css && test -f assets/js/app.js && test -f assets/js/converters.js
+          test -f assets/js/heic-to-jpg.js && test -f heic-to-jpg/index.html && test -f tests/heic-browser-smoke.mjs
+          test -f assets/js/png-to-jpg.js && test -f png-to-jpg/index.html && test -f tests/png-to-jpg-browser-smoke.mjs
+          test -f assets/js/jpg-to-png.js && test -f jpg-to-png/index.html && test -f tests/jpg-to-png-browser-smoke.mjs
+          test -f assets/js/webp-to-jpg.js && test -f webp-to-jpg/index.html && test -f tests/webp-to-jpg-browser-smoke.mjs
+          test -f assets/js/webp-to-png.js && test -f webp-to-png/index.html && test -f tests/webp-to-png-browser-smoke.mjs
+          test -f assets/js/jpg-to-webp.js && test -f jpg-to-webp/index.html && test -f tests/jpg-to-webp-browser-smoke.mjs
+          test -f assets/js/heic-libheif-bootstrap.mjs && test -f assets/vendor/libheif/libheif-bundle.mjs && test -f privacy/index.html && test -f robots.txt && test -f sitemap.xml && test -f _headers
       - name: Check JavaScript syntax
         run: |
-          node --check assets/js/app.js
-          node --check assets/js/converters.js
-          node --check assets/js/heic-to-jpg.js
-          node --check assets/js/heic-libheif-bootstrap.mjs
-          node --check tests/heic-browser-smoke.mjs
-          node --check assets/js/png-to-jpg.js
-          node --check tests/png-to-jpg-browser-smoke.mjs
-          node --check assets/js/jpg-to-png.js
-          node --check tests/jpg-to-png-browser-smoke.mjs
-          node --check assets/js/webp-to-jpg.js
-          node --check tests/webp-to-jpg-browser-smoke.mjs
-          node --check assets/js/webp-to-png.js
-          node --check tests/webp-to-png-browser-smoke.mjs
-      - name: Check routes and WebP to PNG wiring
+          node --check assets/js/app.js && node --check assets/js/converters.js
+          node --check assets/js/heic-to-jpg.js && node --check assets/js/heic-libheif-bootstrap.mjs && node --check tests/heic-browser-smoke.mjs
+          node --check assets/js/png-to-jpg.js && node --check tests/png-to-jpg-browser-smoke.mjs
+          node --check assets/js/jpg-to-png.js && node --check tests/jpg-to-png-browser-smoke.mjs
+          node --check assets/js/webp-to-jpg.js && node --check tests/webp-to-jpg-browser-smoke.mjs
+          node --check assets/js/webp-to-png.js && node --check tests/webp-to-png-browser-smoke.mjs
+          node --check assets/js/jpg-to-webp.js && node --check tests/jpg-to-webp-browser-smoke.mjs
+      - name: Check JPG to WebP wiring
         run: |
-          grep -q "data-tool-grid" index.html
-          grep -q "webp-to-png" assets/js/converters.js
-          grep -q 'status: "live"' assets/js/converters.js
-          grep -q "convertfiletype.com/webp-to-png/" sitemap.xml
-          grep -q 'data-webp-file' webp-to-png/index.html
-          grep -q '/assets/js/webp-to-png.js?v=1' webp-to-png/index.html
-          grep -q 'Converter build: webp-png-v1-native' webp-to-png/index.html
-          ! grep -q '<script type="module">' webp-to-png/index.html
-          grep -q "image/png" assets/js/webp-to-png.js
-          grep -q 'canvas.toBlob' assets/js/webp-to-png.js
-          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/webp-to-png.js
-          grep -q 'Generated PNG signature is invalid' assets/js/webp-to-png.js
-          grep -q 'result.hidden=true\|result.hidden = true' assets/js/webp-to-png.js
-          grep -q 'activeRun!==runId\|activeRun !== runId' assets/js/webp-to-png.js
-          grep -q "Reading WebP file" assets/js/webp-to-png.js
-          grep -q "Decoding WebP" assets/js/webp-to-png.js
-          grep -q "Encoding PNG" assets/js/webp-to-png.js
-          grep -q "Validating PNG" assets/js/webp-to-png.js
-      - name: Check WebP to PNG browser gate
+          grep -q 'jpg-to-webp' assets/js/converters.js
+          grep -q 'convertfiletype.com/jpg-to-webp/' sitemap.xml
+          grep -q 'data-jpg-file' jpg-to-webp/index.html
+          grep -q '/assets/js/jpg-to-webp.js?v=1' jpg-to-webp/index.html
+          grep -q 'Converter build: jpg-webp-v1-native' jpg-to-webp/index.html
+          ! grep -q '<script type="module">' jpg-to-webp/index.html
+          grep -q 'image/webp' assets/js/jpg-to-webp.js
+          grep -q 'toBlob' assets/js/jpg-to-webp.js
+          grep -q 'CONVERSION_TIMEOUT_MS=10000' assets/js/jpg-to-webp.js
+          grep -q 'Generated WebP signature is invalid' assets/js/jpg-to-webp.js
+          grep -q "Reading JPG file" assets/js/jpg-to-webp.js
+          grep -q "Decoding JPG" assets/js/jpg-to-webp.js
+          grep -q "Encoding WebP" assets/js/jpg-to-webp.js
+          grep -q "Validating WebP" assets/js/jpg-to-webp.js
+      - name: Check JPG to WebP browser gate
         run: |
-          grep -q 'webp-png-v1-native' tests/webp-to-png-browser-smoke.mjs
-          grep -q 'image/png' tests/webp-to-png-browser-smoke.mjs
-          grep -q '137,80,78,71,13,10,26,10' tests/webp-to-png-browser-smoke.mjs
-          grep -q 'transparent corner alpha should be preserved' tests/webp-to-png-browser-smoke.mjs
-          grep -q 'elapsed<10000' tests/webp-to-png-browser-smoke.mjs
+          grep -q 'jpg-webp-v1-native' tests/jpg-to-webp-browser-smoke.mjs
+          grep -q 'image/webp' tests/jpg-to-webp-browser-smoke.mjs
+          grep -q "RIFF" tests/jpg-to-webp-browser-smoke.mjs
+          grep -q "WEBP" tests/jpg-to-webp-browser-smoke.mjs
+          grep -q 'elapsed<10000' tests/jpg-to-webp-browser-smoke.mjs
       - name: Check existing converter regressions remain wired
         run: |
-          test -f .github/workflows/heic-browser-smoke.yml
-          test -f .github/workflows/png-to-jpg-browser-smoke.yml
-          test -f .github/workflows/jpg-to-png-browser-smoke.yml
-          test -f .github/workflows/webp-to-jpg-browser-smoke.yml
-          grep -q 'Converter build: heic-v14-csp-safe' heic-to-jpg/index.html
-          grep -q 'Converter build: png-v1-native' png-to-jpg/index.html
-          grep -q 'Converter build: jpg-png-v1-native' jpg-to-png/index.html
-          grep -q 'Converter build: webp-jpg-v1-native' webp-to-jpg/index.html
+          test -f .github/workflows/heic-browser-smoke.yml && test -f .github/workflows/png-to-jpg-browser-smoke.yml && test -f .github/workflows/jpg-to-png-browser-smoke.yml && test -f .github/workflows/webp-to-jpg-browser-smoke.yml && test -f .github/workflows/webp-to-png-browser-smoke.yml
+          grep -q 'heic-v14-csp-safe' heic-to-jpg/index.html && grep -q 'png-v1-native' png-to-jpg/index.html && grep -q 'jpg-png-v1-native' jpg-to-png/index.html && grep -q 'webp-jpg-v1-native' webp-to-jpg/index.html && grep -q 'webp-png-v1-native' webp-to-png/index.html
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
