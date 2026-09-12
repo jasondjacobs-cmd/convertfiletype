@@ -1,0 +1,48 @@
+name: avif-encoder-poc
+
+on:
+  push:
+    branches: [feature/avif-encoder-poc]
+  workflow_dispatch:
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Stage pinned jSquash AVIF encoder assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          JSQUASH_SHA=da47a2be3b302beb5a5ae164a2ab7aa21a041d90
+          mkdir -p experiments/avif-encoder/vendor
+          curl -fsSL "https://raw.githubusercontent.com/jamsinclair/jSquash/${JSQUASH_SHA}/packages/avif/codec/enc/avif_enc.js" \
+            -o experiments/avif-encoder/vendor/avif_enc.js
+          curl -fsSL "https://raw.githubusercontent.com/jamsinclair/jSquash/${JSQUASH_SHA}/packages/avif/codec/enc/avif_enc.wasm" \
+            -o experiments/avif-encoder/vendor/avif_enc.wasm
+          test "$(git hash-object experiments/avif-encoder/vendor/avif_enc.js)" = "8ab70b90bbaec1e8764dfbb9fefd6d868b3eafe3"
+          test "$(git hash-object experiments/avif-encoder/vendor/avif_enc.wasm)" = "4c3da3f2ceb0e3a5a1337c48e15f89b0a46c7ff8"
+
+      - name: Check proof syntax
+        run: |
+          node --check experiments/avif-encoder/poc.mjs
+          node --check tests/avif-encoder-poc-browser-smoke.mjs
+
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Start static server
+        run: python3 -m http.server 4173 >/tmp/convertfiletype-avif-poc-server.log 2>&1 &
+
+      - name: Run AVIF encoder proof
+        env:
+          SITE_URL: http://127.0.0.1:4173
+        run: node tests/avif-encoder-poc-browser-smoke.mjs
