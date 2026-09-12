@@ -6,7 +6,7 @@
   <title>HEIC to JPG Converter | ConvertFileType</title>
   <meta name="description" content="Convert HEIC and HEIF images to JPG in your browser. Your source image stays on your device during conversion.">
   <link rel="canonical" href="https://convertfiletype.com/heic-to-jpg/">
-  <link rel="stylesheet" href="/assets/css/styles.css?v=13">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=14">
 </head>
 <body>
   <header class="site-header">
@@ -64,7 +64,7 @@
       </div>
 
       <p class="converter-status" data-status role="status" aria-live="polite">Choose a file to begin.</p>
-      <p class="build-version" data-build-version>Converter build: heic-v13-selfhosted-ready</p>
+      <p class="build-version" data-build-version>Converter build: heic-v14-csp-safe</p>
 
       <div class="conversion-result" data-result hidden>
         <img data-preview alt="Converted JPG preview">
@@ -100,19 +100,7 @@
 
   <footer class="site-footer"><span>ConvertFileType.com</span><a href="/privacy/">Privacy</a></footer>
 
-  <script type="module">
-    import createLibheif from '/assets/vendor/libheif/libheif-bundle.mjs';
-    window.libheifReady = Promise.resolve()
-      .then(() => createLibheif())
-      .then((libheif) => {
-        window.libheif = libheif;
-        return libheif;
-      })
-      .catch((error) => {
-        window.libheifLoadError = error?.message || String(error);
-        throw error;
-      });
-  </script>
-  <script src="/assets/js/heic-to-jpg.js?v=13" defer></script>
+  <script type="module" src="/assets/js/heic-libheif-bootstrap.mjs?v=14"></script>
+  <script src="/assets/js/heic-to-jpg.js?v=14" defer></script>
 </body>
 </html>
