@@ -5,6 +5,7 @@ export const converters = [
   { slug: "png-to-jpg", title: "PNG to JPG", description: "Create smaller JPG versions of PNG images in your browser.", category: "image", status: "live" },
   { slug: "jpg-to-png", title: "JPG to PNG", description: "Convert JPG images into PNG files in your browser.", category: "image", status: "live" },
   { slug: "jpg-to-webp", title: "JPG to WebP", description: "Convert JPG images into smaller, web-friendly WebP files in your browser.", category: "image", status: "live" },
+  { slug: "png-to-webp", title: "PNG to WebP", description: "Convert PNG images into smaller WebP files while preserving transparency.", category: "image", status: "live" },
   { slug: "avif-to-jpg", title: "AVIF to JPG", description: "Convert AVIF images into widely compatible JPG files.", category: "image", status: "planned" },
   { slug: "csv-to-json", title: "CSV to JSON", description: "Turn CSV tabular data into JSON for apps and development work.", category: "data", status: "planned" }
 ];
