@@ -5,6 +5,7 @@ export const converters = [
   { slug: "png-to-jpg", title: "PNG to JPG", description: "Create JPG versions of PNG images in your browser.", category: "image", status: "live" },
   { slug: "jpg-to-png", title: "JPG to PNG", description: "Convert JPG images into PNG files in your browser.", category: "image", status: "live" },
   { slug: "jpg-to-webp", title: "JPG to WebP", description: "Convert JPG images into web-friendly WebP files in your browser.", category: "image", status: "live" },
+  { slug: "jpg-to-avif", title: "JPG to AVIF", description: "Convert JPG images into AVIF files locally in your browser.", category: "image", status: "live" },
   { slug: "png-to-webp", title: "PNG to WebP", description: "Convert PNG images into WebP files while preserving transparency.", category: "image", status: "live" },
   { slug: "avif-to-jpg", title: "AVIF to JPG", description: "Convert AVIF images into widely compatible JPG files in your browser.", category: "image", status: "live" },
   { slug: "avif-to-png", title: "AVIF to PNG", description: "Convert AVIF images into PNG files while preserving transparency.", category: "image", status: "live" },
