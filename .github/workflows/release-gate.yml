@@ -21,6 +21,7 @@ jobs:
           test -f assets/js/avif-to-jpg.js && test -f avif-to-jpg/index.html && test -f tests/avif-to-jpg-browser-smoke.mjs
           test -f assets/js/avif-to-png.js && test -f avif-to-png/index.html && test -f tests/avif-to-png-browser-smoke.mjs
           test -f assets/js/jpg-to-avif.mjs && test -f assets/js/avif-encoder.mjs && test -f jpg-to-avif/index.html && test -f tests/jpg-to-avif-browser-smoke.mjs
+          test -f assets/js/png-to-avif.mjs && test -f png-to-avif/index.html && test -f tests/png-to-avif-browser-smoke.mjs
           test -f assets/vendor/jsquash-avif/avif_enc.js && test -f assets/vendor/jsquash-avif/avif_enc.wasm && test -f assets/vendor/jsquash-avif/LICENSE && test -f assets/vendor/jsquash-avif/NOTICE.md
           test -f assets/js/heic-libheif-bootstrap.mjs && test -f assets/vendor/libheif/libheif-bundle.mjs && test -f privacy/index.html && test -f robots.txt && test -f sitemap.xml && test -f _headers
       - name: Check JavaScript syntax
@@ -36,6 +37,7 @@ jobs:
           node --check assets/js/avif-to-jpg.js && node --check tests/avif-to-jpg-browser-smoke.mjs
           node --check assets/js/avif-to-png.js && node --check tests/avif-to-png-browser-smoke.mjs
           node --check assets/js/avif-encoder.mjs && node --check assets/js/jpg-to-avif.mjs && node --check tests/jpg-to-avif-browser-smoke.mjs
+          node --check assets/js/png-to-avif.mjs && node --check tests/png-to-avif-browser-smoke.mjs
       - name: Check WebP encoder wiring
         run: |
           grep -q 'jpg-to-webp' assets/js/converters.js
@@ -103,6 +105,28 @@ jobs:
           grep -q 'avif_enc.wasm' tests/jpg-to-avif-browser-smoke.mjs
           grep -q 'externalHttpRequests' tests/jpg-to-avif-browser-smoke.mjs
           grep -q 'elapsed < 10000' tests/jpg-to-avif-browser-smoke.mjs
+      - name: Check PNG to AVIF wiring
+        run: |
+          grep -q 'png-to-avif' assets/js/converters.js
+          grep -q 'convertfiletype.com/png-to-avif/' sitemap.xml
+          grep -q 'data-png-file' png-to-avif/index.html
+          grep -q 'Converter build: png-avif-v1-wasm' png-to-avif/index.html
+          grep -q '/assets/js/png-to-avif.mjs?v=1' png-to-avif/index.html
+          grep -q "type=\"module\"" png-to-avif/index.html
+          grep -q 'Generated AVIF signature is invalid' assets/js/png-to-avif.mjs
+          grep -q 'Generated AVIF dimensions do not match the PNG source' assets/js/png-to-avif.mjs
+          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/png-to-avif.mjs
+          grep -q 'ctx.clearRect' assets/js/png-to-avif.mjs
+      - name: Check PNG to AVIF browser gate
+        run: |
+          grep -q 'png-avif-v1-wasm' tests/png-to-avif-browser-smoke.mjs
+          grep -q 'image/avif' tests/png-to-avif-browser-smoke.mjs
+          grep -q "result.box, 'ftyp'" tests/png-to-avif-browser-smoke.mjs
+          grep -q 'transparent corner alpha should be preserved' tests/png-to-avif-browser-smoke.mjs
+          grep -q 'opaque center alpha should remain opaque' tests/png-to-avif-browser-smoke.mjs
+          grep -q 'avif_enc.wasm' tests/png-to-avif-browser-smoke.mjs
+          grep -q 'externalHttpRequests' tests/png-to-avif-browser-smoke.mjs
+          grep -q 'elapsed < 10000' tests/png-to-avif-browser-smoke.mjs
       - name: Check existing converter regressions remain wired
         run: |
           test -f .github/workflows/heic-browser-smoke.yml
@@ -115,6 +139,7 @@ jobs:
           test -f .github/workflows/avif-to-jpg-browser-smoke.yml
           test -f .github/workflows/avif-to-png-browser-smoke.yml
           test -f .github/workflows/jpg-to-avif-browser-smoke.yml
+          test -f .github/workflows/png-to-avif-browser-smoke.yml
           grep -q 'heic-v14-csp-safe' heic-to-jpg/index.html
           grep -q 'png-v1-native' png-to-jpg/index.html
           grep -q 'jpg-png-v1-native' jpg-to-png/index.html
@@ -124,6 +149,7 @@ jobs:
           grep -q 'png-webp-v1-native' png-to-webp/index.html
           grep -q 'avif-jpg-v1-native' avif-to-jpg/index.html
           grep -q 'avif-png-v1-native' avif-to-png/index.html
+          grep -q 'jpg-avif-v1-wasm' jpg-to-avif/index.html
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
