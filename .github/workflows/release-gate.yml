@@ -21,6 +21,9 @@ jobs:
           test -f assets/js/heic-libheif-bootstrap.mjs
           test -f assets/vendor/libheif/libheif-bundle.mjs
           test -f heic-to-jpg/index.html
+          test -f assets/js/png-to-jpg.js
+          test -f png-to-jpg/index.html
+          test -f tests/png-to-jpg-browser-smoke.mjs
           test -f privacy/index.html
           test -f robots.txt
           test -f sitemap.xml
@@ -33,11 +36,15 @@ jobs:
           node --check assets/js/heic-to-jpg.js
           node --check assets/js/heic-libheif-bootstrap.mjs
           node --check tests/heic-browser-smoke.mjs
+          node --check assets/js/png-to-jpg.js
+          node --check tests/png-to-jpg-browser-smoke.mjs
       - name: Check key routes
         run: |
           grep -q "data-tool-grid" index.html
           grep -q "heic-to-jpg" assets/js/converters.js
+          grep -q "png-to-jpg" assets/js/converters.js
           grep -q "convertfiletype.com/heic-to-jpg/" sitemap.xml
+          grep -q "convertfiletype.com/png-to-jpg/" sitemap.xml
       - name: Check HEIC CSP-safe wiring
         run: |
           grep -q 'data-heic-file' heic-to-jpg/index.html
@@ -57,7 +64,19 @@ jobs:
           grep -q 'HeifDecoder' assets/vendor/libheif/libheif-bundle.mjs
           ! grep -q 'cdn.jsdelivr.net' heic-to-jpg/index.html
           ! grep -q 'unpkg.com' heic-to-jpg/index.html
-      - name: Check browser gate blocks remote decoder
+      - name: Check PNG to JPG wiring
+        run: |
+          grep -q 'data-png-file' png-to-jpg/index.html
+          grep -q 'data-background' png-to-jpg/index.html
+          grep -q 'data-quality' png-to-jpg/index.html
+          grep -q '/assets/js/png-to-jpg.js?v=1' png-to-jpg/index.html
+          grep -q 'Converter build: png-v1-native' png-to-jpg/index.html
+          ! grep -q '<script type="module">' png-to-jpg/index.html
+          grep -q "image/jpeg" assets/js/png-to-jpg.js
+          grep -q 'canvas.toBlob' assets/js/png-to-jpg.js
+          grep -q "fillStyle = background.value === 'black'" assets/js/png-to-jpg.js
+          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/png-to-jpg.js
+      - name: Check browser gates
         run: |
           grep -q 'thirdPartyDecoderRequests' tests/heic-browser-smoke.mjs
           grep -q 'CSP-safe decoder bootstrap request missing' tests/heic-browser-smoke.mjs
@@ -65,6 +84,10 @@ jobs:
           grep -q 'self-hosted decoder request missing' tests/heic-browser-smoke.mjs
           grep -q 'window.libheifReady' tests/heic-browser-smoke.mjs
           grep -q 'elapsed < 10000' tests/heic-browser-smoke.mjs
+          grep -q 'png-v1-native' tests/png-to-jpg-browser-smoke.mjs
+          grep -q 'image/jpeg' tests/png-to-jpg-browser-smoke.mjs
+          grep -q 'transparent corner should be white' tests/png-to-jpg-browser-smoke.mjs
+          grep -q 'elapsed < 10000' tests/png-to-jpg-browser-smoke.mjs
       - name: Check failure-state guardrails
         run: |
           grep -q '^\[hidden\] { display: none !important; }' assets/css/styles.css
@@ -72,7 +95,10 @@ jobs:
           grep -q 'result.hidden = false' assets/js/heic-to-jpg.js
           grep -q 'activeRun !== runId' assets/js/heic-to-jpg.js
           grep -q 'CONVERSION_TIMEOUT_MS = 15000' assets/js/heic-to-jpg.js
-      - name: Check actual decoder stages
+          grep -q 'result.hidden = true' assets/js/png-to-jpg.js
+          grep -q 'result.hidden = false' assets/js/png-to-jpg.js
+          grep -q 'activeRun !== runId' assets/js/png-to-jpg.js
+      - name: Check actual converter stages
         run: |
           grep -q "Loading HEIC decoder" assets/js/heic-to-jpg.js
           grep -q "Reading HEIC file" assets/js/heic-to-jpg.js
@@ -81,6 +107,11 @@ jobs:
           grep -q "Encoding JPG" assets/js/heic-to-jpg.js
           grep -q "Validating JPG" assets/js/heic-to-jpg.js
           grep -q 'Converter build: heic-v14-csp-safe' heic-to-jpg/index.html
+          grep -q "Reading PNG file" assets/js/png-to-jpg.js
+          grep -q "Decoding PNG" assets/js/png-to-jpg.js
+          grep -q "Preparing image" assets/js/png-to-jpg.js
+          grep -q "Encoding JPG" assets/js/png-to-jpg.js
+          grep -q "Validating JPG" assets/js/png-to-jpg.js
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
