@@ -16,9 +16,9 @@ export const converters = [
   {
     slug: "webp-to-png",
     title: "WebP to PNG",
-    description: "Turn WebP images into PNG files for broader compatibility.",
+    description: "Convert WebP images into PNG files while preserving transparency.",
     category: "image",
-    status: "planned"
+    status: "live"
   },
   {
     slug: "png-to-jpg",
