@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WebP to JPG Converter | ConvertFileType</title>
+  <meta name="description" content="Convert WebP images to JPG in your browser. Choose JPG quality and how transparent areas should be filled.">
+  <link rel="canonical" href="https://convertfiletype.com/webp-to-jpg/">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=15">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">ConvertFileType</a>
+    <nav aria-label="Primary"><a href="/">All converters</a></nav>
+  </header>
+
+  <main>
+    <section class="hero converter-hero">
+      <p class="eyebrow">Image converter</p>
+      <h1>WebP to JPG</h1>
+      <p class="lede">Convert a WebP image to JPG directly in your browser. Your source file stays on your device.</p>
+    </section>
+
+    <section class="converter-panel" aria-labelledby="converter-title">
+      <div class="converter-panel-heading">
+        <div>
+          <p class="eyebrow">Free converter</p>
+          <h2 id="converter-title">Choose your WebP file</h2>
+        </div>
+        <span class="local-badge">Processed on your device</span>
+      </div>
+
+      <label class="drop-zone" for="webp-file" data-drop-zone>
+        <input id="webp-file" data-webp-file type="file" accept=".webp,image/webp" hidden>
+        <strong>Choose WebP file</strong>
+        <span>or drag and drop one here</span>
+        <small>WebP, up to 25 MB</small>
+      </label>
+
+      <div class="selected-file" data-selected-file hidden>
+        <div>
+          <strong data-file-name></strong>
+          <span data-file-size></span>
+        </div>
+        <button type="button" class="text-button" data-clear-file>Remove</button>
+      </div>
+
+      <div class="converter-options option-grid">
+        <div>
+          <label for="jpg-quality">JPG quality <output for="jpg-quality" data-quality-output>90%</output></label>
+          <input id="jpg-quality" data-quality type="range" min="60" max="100" value="90" step="5">
+        </div>
+        <div>
+          <label for="jpg-background">Transparent areas</label>
+          <select id="jpg-background" data-background>
+            <option value="white" selected>Fill with white</option>
+            <option value="black">Fill with black</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="primary-action" data-convert disabled>Convert to JPG</button>
+
+      <div class="conversion-progress" data-progress hidden>
+        <div class="progress-row">
+          <strong data-progress-label>Preparing converter…</strong>
+          <span data-progress-percent>0%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress-track>
+          <span data-progress-bar></span>
+        </div>
+        <small data-progress-detail>Waiting to start.</small>
+      </div>
+
+      <p class="converter-status" data-status role="status" aria-live="polite">Choose a file to begin.</p>
+      <p class="build-version" data-build-version>Converter build: webp-jpg-v1-native</p>
+
+      <div class="conversion-result" data-result hidden>
+        <img data-preview alt="Converted JPG preview">
+        <div class="result-copy">
+          <strong>Your JPG is ready.</strong>
+          <span data-result-size></span>
+          <a class="download-action" data-download download>Download JPG</a>
+          <button type="button" class="text-button" data-convert-another>Convert another file</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="ad-slot" data-ad-slot="converter-mid" aria-label="Reserved advertisement area">Advertisement space reserved</div>
+
+    <section class="section-block content-section">
+      <div class="section-heading">
+        <p class="eyebrow">How it works</p>
+        <h2>WebP to JPG in three steps</h2>
+      </div>
+      <ol class="steps-list">
+        <li><strong>Choose a WebP image.</strong><span>The file stays on your device.</span></li>
+        <li><strong>Choose JPG quality and transparency fill.</strong><span>White is the default for transparent pixels.</span></li>
+        <li><strong>Download the JPG.</strong><span>The converted file is created locally in your browser.</span></li>
+      </ol>
+    </section>
+
+    <section class="privacy-card">
+      <p class="eyebrow">Privacy</p>
+      <h2>Your image does not get uploaded to us.</h2>
+      <p>The conversion runs in your browser using built-in image and canvas support. ConvertFileType does not receive or store your source WebP or generated JPG.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>ConvertFileType.com</span><a href="/privacy/">Privacy</a></footer>
+
+  <script src="/assets/js/webp-to-jpg.js?v=1" defer></script>
+</body>
+</html>
