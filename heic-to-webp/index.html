@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HEIC to WebP Converter | ConvertFileType</title>
+  <meta name="description" content="Convert HEIC and HEIF images to WebP directly in your browser while preserving decoded transparency when present.">
+  <link rel="canonical" href="https://convertfiletype.com/heic-to-webp/">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=15">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">ConvertFileType</a>
+    <nav aria-label="Primary"><a href="/">All converters</a></nav>
+  </header>
+
+  <main>
+    <section class="hero converter-hero">
+      <p class="eyebrow">Image converter</p>
+      <h1>HEIC to WebP</h1>
+      <p class="lede">Convert an HEIC or HEIF image to WebP directly in your browser. Your source file stays on your device.</p>
+    </section>
+
+    <section class="converter-panel" aria-labelledby="converter-title">
+      <div class="converter-panel-heading">
+        <div>
+          <p class="eyebrow">Free converter</p>
+          <h2 id="converter-title">Choose your HEIC file</h2>
+        </div>
+        <span class="local-badge">Processed on your device</span>
+      </div>
+
+      <label class="drop-zone" for="heic-webp-file" data-drop-zone>
+        <input id="heic-webp-file" data-heic-file type="file" accept=".heic,.heif,image/heic,image/heif" hidden>
+        <strong>Choose HEIC file</strong>
+        <span>or drag and drop one here</span>
+        <small>HEIC or HEIF, up to 25 MB</small>
+      </label>
+
+      <div class="selected-file" data-selected-file hidden>
+        <div>
+          <strong data-file-name></strong>
+          <span data-file-size></span>
+        </div>
+        <button type="button" class="text-button" data-clear-file>Remove</button>
+      </div>
+
+      <label class="quality-control">
+        <span>WebP quality <strong data-quality-output>85%</strong></span>
+        <input data-quality type="range" min="40" max="100" value="85" step="1">
+      </label>
+
+      <button type="button" class="primary-action" data-convert disabled>Convert to WebP</button>
+
+      <div class="conversion-progress" data-progress hidden>
+        <div class="progress-row">
+          <strong data-progress-label>Preparing converter…</strong>
+          <span data-progress-percent>0%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress-track>
+          <span data-progress-bar></span>
+        </div>
+        <small data-progress-detail>Waiting to start.</small>
+      </div>
+
+      <p class="converter-status" data-status role="status" aria-live="polite">Choose a file to begin.</p>
+      <p class="build-version" data-build-version>Converter build: heic-webp-v1-libheif</p>
+
+      <div class="conversion-result" data-result hidden>
+        <img data-preview alt="Converted WebP preview">
+        <div class="result-copy">
+          <strong>Your WebP is ready.</strong>
+          <span data-result-size></span>
+          <a class="download-action" data-download download>Download WebP</a>
+          <button type="button" class="text-button" data-convert-another>Convert another file</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="ad-slot" data-ad-slot="converter-mid" aria-label="Reserved advertisement area">Advertisement space reserved</div>
+
+    <section class="section-block content-section">
+      <div class="section-heading">
+        <p class="eyebrow">How it works</p>
+        <h2>HEIC to WebP in three steps</h2>
+      </div>
+      <ol class="steps-list">
+        <li><strong>Choose an HEIC or HEIF image.</strong><span>The file stays on your device.</span></li>
+        <li><strong>Convert locally.</strong><span>ConvertFileType decodes the HEIC and creates WebP in your browser.</span></li>
+        <li><strong>Download the WebP.</strong><span>Decoded transparency is preserved when the source contains it.</span></li>
+      </ol>
+    </section>
+
+    <section class="privacy-card">
+      <p class="eyebrow">Privacy</p>
+      <h2>Your photo does not get uploaded to us.</h2>
+      <p>The conversion runs in your browser using ConvertFileType's self-hosted HEIC decoder and built-in WebP encoding. ConvertFileType does not receive or store the source HEIC image or generated WebP.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>ConvertFileType.com</span><a href="/privacy/">Privacy</a></footer>
+
+  <script type="module" src="/assets/js/heic-libheif-bootstrap.mjs?v=14"></script>
+  <script src="/assets/js/heic-to-webp.js?v=1" defer></script>
+</body>
+</html>
