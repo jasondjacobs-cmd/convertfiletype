@@ -1,0 +1,31 @@
+name: gif-to-webp-release-gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check GIF to WebP files and wiring
+        run: |
+          test -f gif-to-webp/index.html
+          test -f assets/js/gif-to-webp.js
+          test -f tests/gif-to-webp-browser-smoke.mjs
+          grep -q 'gif-to-webp' assets/js/converters.js
+          grep -q 'convertfiletype.com/gif-to-webp/' sitemap.xml
+          grep -q 'Converter build: gif-webp-v1-native' gif-to-webp/index.html
+          grep -q '/assets/js/gif-to-webp.js?v=1' gif-to-webp/index.html
+          grep -q 'image/webp' assets/js/gif-to-webp.js
+          grep -q 'Generated WebP signature is invalid' assets/js/gif-to-webp.js
+          grep -q 'Generated WebP dimensions do not match the GIF source' assets/js/gif-to-webp.js
+          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/gif-to-webp.js
+          grep -q 'externalHttpRequests' tests/gif-to-webp-browser-smoke.mjs
+          grep -q "output.signature.startsWith('RIFF')" tests/gif-to-webp-browser-smoke.mjs
+          grep -q "output.signature.slice(8,12),'WEBP'" tests/gif-to-webp-browser-smoke.mjs
+          ! grep -q '<script[^>]*>[^<]' gif-to-webp/index.html
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/js/gif-to-webp.js
+          node --check tests/gif-to-webp-browser-smoke.mjs
