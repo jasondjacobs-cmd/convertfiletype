@@ -3,6 +3,7 @@ export const converters = [
   { slug: "heic-to-png", title: "HEIC to PNG", description: "Convert HEIC and HEIF images into PNG files locally in your browser.", category: "image", status: "live" },
   { slug: "webp-to-jpg", title: "WebP to JPG", description: "Convert WebP images into widely supported JPG files in your browser.", category: "image", status: "live" },
   { slug: "webp-to-png", title: "WebP to PNG", description: "Convert WebP images into PNG files while preserving transparency.", category: "image", status: "live" },
+  { slug: "webp-to-avif", title: "WebP to AVIF", description: "Convert WebP images into AVIF files while preserving transparency.", category: "image", status: "live" },
   { slug: "png-to-jpg", title: "PNG to JPG", description: "Create JPG versions of PNG images in your browser.", category: "image", status: "live" },
   { slug: "jpg-to-png", title: "JPG to PNG", description: "Convert JPG images into PNG files in your browser.", category: "image", status: "live" },
   { slug: "jpg-to-webp", title: "JPG to WebP", description: "Convert JPG images into web-friendly WebP files in your browser.", category: "image", status: "live" },
