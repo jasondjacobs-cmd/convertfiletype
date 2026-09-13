@@ -12,5 +12,6 @@ export const converters = [
   { slug: "png-to-avif", title: "PNG to AVIF", description: "Convert PNG images into AVIF files while preserving transparency.", category: "image", status: "live" },
   { slug: "avif-to-jpg", title: "AVIF to JPG", description: "Convert AVIF images into widely compatible JPG files in your browser.", category: "image", status: "live" },
   { slug: "avif-to-png", title: "AVIF to PNG", description: "Convert AVIF images into PNG files while preserving transparency.", category: "image", status: "live" },
+  { slug: "avif-to-webp", title: "AVIF to WebP", description: "Convert AVIF images into WebP files while preserving transparency.", category: "image", status: "live" },
   { slug: "csv-to-json", title: "CSV to JSON", description: "Turn CSV tabular data into JSON for apps and development work.", category: "data", status: "planned" }
 ];
