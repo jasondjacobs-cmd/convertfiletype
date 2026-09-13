@@ -12,6 +12,7 @@ jobs:
         run: |
           test -f index.html && test -f assets/css/styles.css && test -f assets/js/app.js && test -f assets/js/converters.js
           test -f assets/js/heic-to-jpg.js && test -f heic-to-jpg/index.html && test -f tests/heic-browser-smoke.mjs
+          test -f assets/js/heic-to-png.js && test -f heic-to-png/index.html && test -f tests/heic-to-png-browser-smoke.mjs
           test -f assets/js/png-to-jpg.js && test -f png-to-jpg/index.html && test -f tests/png-to-jpg-browser-smoke.mjs
           test -f assets/js/jpg-to-png.js && test -f jpg-to-png/index.html && test -f tests/jpg-to-png-browser-smoke.mjs
           test -f assets/js/webp-to-jpg.js && test -f webp-to-jpg/index.html && test -f tests/webp-to-jpg-browser-smoke.mjs
@@ -28,6 +29,7 @@ jobs:
         run: |
           node --check assets/js/app.js && node --check assets/js/converters.js
           node --check assets/js/heic-to-jpg.js && node --check assets/js/heic-libheif-bootstrap.mjs && node --check tests/heic-browser-smoke.mjs
+          node --check assets/js/heic-to-png.js && node --check tests/heic-to-png-browser-smoke.mjs
           node --check assets/js/png-to-jpg.js && node --check tests/png-to-jpg-browser-smoke.mjs
           node --check assets/js/jpg-to-png.js && node --check tests/jpg-to-png-browser-smoke.mjs
           node --check assets/js/webp-to-jpg.js && node --check tests/webp-to-jpg-browser-smoke.mjs
@@ -38,6 +40,27 @@ jobs:
           node --check assets/js/avif-to-png.js && node --check tests/avif-to-png-browser-smoke.mjs
           node --check assets/js/avif-encoder.mjs && node --check assets/js/jpg-to-avif.mjs && node --check tests/jpg-to-avif-browser-smoke.mjs
           node --check assets/js/png-to-avif.mjs && node --check tests/png-to-avif-browser-smoke.mjs
+      - name: Check HEIC to PNG wiring
+        run: |
+          grep -q 'heic-to-png' assets/js/converters.js
+          grep -q 'convertfiletype.com/heic-to-png/' sitemap.xml
+          grep -q 'data-heic-file' heic-to-png/index.html
+          grep -q 'Converter build: heic-png-v1-libheif' heic-to-png/index.html
+          grep -q '/assets/js/heic-libheif-bootstrap.mjs?v=14' heic-to-png/index.html
+          grep -q '/assets/js/heic-to-png.js?v=1' heic-to-png/index.html
+          grep -q 'PNG_SIGNATURE = \[137, 80, 78, 71, 13, 10, 26, 10\]' assets/js/heic-to-png.js
+          grep -q 'Generated PNG signature is invalid' assets/js/heic-to-png.js
+          grep -q 'Generated PNG dimensions do not match the HEIC source' assets/js/heic-to-png.js
+          grep -q "getContext('2d', { alpha: true })" assets/js/heic-to-png.js
+          grep -q 'context.clearRect' assets/js/heic-to-png.js
+      - name: Check HEIC to PNG browser gate
+        run: |
+          grep -q 'heic-png-v1-libheif' tests/heic-to-png-browser-smoke.mjs
+          grep -q 'image/png' tests/heic-to-png-browser-smoke.mjs
+          grep -q '137, 80, 78, 71, 13, 10, 26, 10' tests/heic-to-png-browser-smoke.mjs
+          grep -q 'libheif-bundle.mjs' tests/heic-to-png-browser-smoke.mjs
+          grep -q 'externalHttpRequests' tests/heic-to-png-browser-smoke.mjs
+          grep -q 'elapsed < 10000' tests/heic-to-png-browser-smoke.mjs
       - name: Check WebP encoder wiring
         run: |
           grep -q 'jpg-to-webp' assets/js/converters.js
@@ -130,6 +153,7 @@ jobs:
       - name: Check existing converter regressions remain wired
         run: |
           test -f .github/workflows/heic-browser-smoke.yml
+          test -f .github/workflows/heic-to-png-browser-smoke.yml
           test -f .github/workflows/png-to-jpg-browser-smoke.yml
           test -f .github/workflows/jpg-to-png-browser-smoke.yml
           test -f .github/workflows/webp-to-jpg-browser-smoke.yml
@@ -141,6 +165,7 @@ jobs:
           test -f .github/workflows/jpg-to-avif-browser-smoke.yml
           test -f .github/workflows/png-to-avif-browser-smoke.yml
           grep -q 'heic-v14-csp-safe' heic-to-jpg/index.html
+          grep -q 'heic-png-v1-libheif' heic-to-png/index.html
           grep -q 'png-v1-native' png-to-jpg/index.html
           grep -q 'jpg-png-v1-native' jpg-to-png/index.html
           grep -q 'webp-jpg-v1-native' webp-to-jpg/index.html
@@ -150,6 +175,7 @@ jobs:
           grep -q 'avif-jpg-v1-native' avif-to-jpg/index.html
           grep -q 'avif-png-v1-native' avif-to-png/index.html
           grep -q 'jpg-avif-v1-wasm' jpg-to-avif/index.html
+          grep -q 'png-avif-v1-wasm' png-to-avif/index.html
       - name: Check security policy
         run: |
           ! grep -q 'cdn.jsdelivr.net' _headers
