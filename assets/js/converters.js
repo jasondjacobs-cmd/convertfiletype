@@ -1,5 +1,6 @@
 export const converters = [
   { slug: "heic-to-jpg", title: "HEIC to JPG", description: "Convert iPhone HEIC images to widely supported JPG files.", category: "image", status: "live" },
+  { slug: "heic-to-png", title: "HEIC to PNG", description: "Convert HEIC and HEIF images into PNG files locally in your browser.", category: "image", status: "live" },
   { slug: "webp-to-jpg", title: "WebP to JPG", description: "Convert WebP images into widely supported JPG files in your browser.", category: "image", status: "live" },
   { slug: "webp-to-png", title: "WebP to PNG", description: "Convert WebP images into PNG files while preserving transparency.", category: "image", status: "live" },
   { slug: "png-to-jpg", title: "PNG to JPG", description: "Create JPG versions of PNG images in your browser.", category: "image", status: "live" },
