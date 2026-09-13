@@ -1,0 +1,45 @@
+name: gif-to-png-release-gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check GIF to PNG files
+        run: |
+          test -f gif-to-png/index.html
+          test -f assets/js/gif-to-png.js
+          test -f tests/gif-to-png-browser-smoke.mjs
+          test -f .github/workflows/gif-to-png-browser-smoke.yml
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/js/gif-to-png.js
+          node --check tests/gif-to-png-browser-smoke.mjs
+      - name: Check GIF to PNG wiring
+        run: |
+          grep -q 'gif-to-png' assets/js/converters.js
+          grep -q 'convertfiletype.com/gif-to-png/' sitemap.xml
+          grep -q 'data-gif-file' gif-to-png/index.html
+          grep -q 'Converter build: gif-png-v1-native' gif-to-png/index.html
+          grep -q '/assets/js/gif-to-png.js?v=1' gif-to-png/index.html
+          grep -q 'image/png' assets/js/gif-to-png.js
+          grep -q 'PNG_SIGNATURE = \[137, 80, 78, 71, 13, 10, 26, 10\]' assets/js/gif-to-png.js
+          grep -q 'Generated PNG signature is invalid' assets/js/gif-to-png.js
+          grep -q 'Generated PNG dimensions do not match the GIF source' assets/js/gif-to-png.js
+          grep -q "getContext('2d', { alpha: true })" assets/js/gif-to-png.js
+          grep -q 'context.clearRect' assets/js/gif-to-png.js
+          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/gif-to-png.js
+      - name: Check browser gate assertions
+        run: |
+          grep -q 'gif-png-v1-native' tests/gif-to-png-browser-smoke.mjs
+          grep -q 'image/png' tests/gif-to-png-browser-smoke.mjs
+          grep -q '137, 80, 78, 71, 13, 10, 26, 10' tests/gif-to-png-browser-smoke.mjs
+          grep -q 'transparent GIF pixel should remain transparent in PNG' tests/gif-to-png-browser-smoke.mjs
+          grep -q 'externalHttpRequests' tests/gif-to-png-browser-smoke.mjs
+          grep -q 'elapsed < 10000' tests/gif-to-png-browser-smoke.mjs
