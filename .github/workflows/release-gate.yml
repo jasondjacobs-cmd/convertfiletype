@@ -22,6 +22,7 @@ jobs:
           test -f assets/js/png-to-webp.js && test -f png-to-webp/index.html && test -f tests/png-to-webp-browser-smoke.mjs
           test -f assets/js/avif-to-jpg.js && test -f avif-to-jpg/index.html && test -f tests/avif-to-jpg-browser-smoke.mjs
           test -f assets/js/avif-to-png.js && test -f avif-to-png/index.html && test -f tests/avif-to-png-browser-smoke.mjs
+          test -f assets/js/avif-to-webp.js && test -f avif-to-webp/index.html && test -f tests/avif-to-webp-browser-smoke.mjs
           test -f assets/js/jpg-to-avif.mjs && test -f assets/js/avif-encoder.mjs && test -f jpg-to-avif/index.html && test -f tests/jpg-to-avif-browser-smoke.mjs
           test -f assets/js/png-to-avif.mjs && test -f png-to-avif/index.html && test -f tests/png-to-avif-browser-smoke.mjs
           test -f assets/vendor/jsquash-avif/avif_enc.js && test -f assets/vendor/jsquash-avif/avif_enc.wasm && test -f assets/vendor/jsquash-avif/LICENSE && test -f assets/vendor/jsquash-avif/NOTICE.md
@@ -40,6 +41,7 @@ jobs:
           node --check assets/js/png-to-webp.js && node --check tests/png-to-webp-browser-smoke.mjs
           node --check assets/js/avif-to-jpg.js && node --check tests/avif-to-jpg-browser-smoke.mjs
           node --check assets/js/avif-to-png.js && node --check tests/avif-to-png-browser-smoke.mjs
+          node --check assets/js/avif-to-webp.js && node --check tests/avif-to-webp-browser-smoke.mjs
           node --check assets/js/avif-encoder.mjs && node --check assets/js/jpg-to-avif.mjs && node --check tests/jpg-to-avif-browser-smoke.mjs
           node --check assets/js/png-to-avif.mjs && node --check tests/png-to-avif-browser-smoke.mjs
       - name: Check HEIC to PNG wiring
@@ -128,6 +130,29 @@ jobs:
           grep -q '137, 80, 78, 71, 13, 10, 26, 10' tests/avif-to-png-browser-smoke.mjs
           grep -q 'transparent corner alpha should be preserved' tests/avif-to-png-browser-smoke.mjs
           grep -q 'elapsed < 10000' tests/avif-to-png-browser-smoke.mjs
+      - name: Check AVIF to WebP wiring
+        run: |
+          grep -q 'avif-to-webp' assets/js/converters.js
+          grep -q 'convertfiletype.com/avif-to-webp/' sitemap.xml
+          grep -q 'data-avif-file' avif-to-webp/index.html
+          grep -q 'Converter build: avif-webp-v1-native' avif-to-webp/index.html
+          grep -q '/assets/js/avif-to-webp.js?v=1' avif-to-webp/index.html
+          grep -q 'AVIF_PROBE' assets/js/avif-to-webp.js
+          grep -q 'detectAvifSupport' assets/js/avif-to-webp.js
+          grep -q 'image/webp' assets/js/avif-to-webp.js
+          grep -q 'Generated WebP signature is invalid' assets/js/avif-to-webp.js
+          grep -q 'Generated WebP dimensions do not match the AVIF source' assets/js/avif-to-webp.js
+          grep -q 'CONVERSION_TIMEOUT_MS = 10000' assets/js/avif-to-webp.js
+      - name: Check AVIF to WebP browser gate
+        run: |
+          grep -q 'avif-webp-v1-native' tests/avif-to-webp-browser-smoke.mjs
+          grep -q 'image/webp' tests/avif-to-webp-browser-smoke.mjs
+          grep -q "output.signature.startsWith('RIFF')" tests/avif-to-webp-browser-smoke.mjs
+          grep -q "output.signature.slice(8, 12), 'WEBP'" tests/avif-to-webp-browser-smoke.mjs
+          grep -q 'transparent corner alpha should be preserved' tests/avif-to-webp-browser-smoke.mjs
+          grep -q 'opaque center alpha should remain opaque' tests/avif-to-webp-browser-smoke.mjs
+          grep -q 'externalHttpRequests' tests/avif-to-webp-browser-smoke.mjs
+          grep -q 'elapsed < 10000' tests/avif-to-webp-browser-smoke.mjs
       - name: Check JPG to AVIF wiring
         run: |
           grep -q 'jpg-to-avif' assets/js/converters.js
@@ -186,6 +211,7 @@ jobs:
           test -f .github/workflows/png-to-webp-browser-smoke.yml
           test -f .github/workflows/avif-to-jpg-browser-smoke.yml
           test -f .github/workflows/avif-to-png-browser-smoke.yml
+          test -f .github/workflows/avif-to-webp-browser-smoke.yml
           test -f .github/workflows/jpg-to-avif-browser-smoke.yml
           test -f .github/workflows/png-to-avif-browser-smoke.yml
           grep -q 'heic-v14-csp-safe' heic-to-jpg/index.html
@@ -199,6 +225,7 @@ jobs:
           grep -q 'png-webp-v1-native' png-to-webp/index.html
           grep -q 'avif-jpg-v1-native' avif-to-jpg/index.html
           grep -q 'avif-png-v1-native' avif-to-png/index.html
+          grep -q 'avif-webp-v1-native' avif-to-webp/index.html
           grep -q 'jpg-avif-v1-wasm' jpg-to-avif/index.html
           grep -q 'png-avif-v1-wasm' png-to-avif/index.html
       - name: Check security policy
