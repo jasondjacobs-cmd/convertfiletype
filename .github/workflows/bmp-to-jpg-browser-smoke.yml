@@ -1,0 +1,18 @@
+name: bmp-to-jpg-browser-smoke
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm init -y && npm install playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - run: python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/site.log 2>&1 &
+      - run: node tests/bmp-to-jpg-browser-smoke.mjs

@@ -5,6 +5,7 @@ export const converters = [
   { slug: "gif-to-jpg", title: "GIF to JPG", description: "Convert GIF images into widely supported JPG files in your browser.", category: "image", status: "live" },
   { slug: "gif-to-png", title: "GIF to PNG", description: "Convert GIF images into PNG files while preserving transparency.", category: "image", status: "live" },
   { slug: "gif-to-webp", title: "GIF to WebP", description: "Convert GIF images into WebP files while preserving transparency.", category: "image", status: "live" },
+  { slug: "bmp-to-jpg", title: "BMP to JPG", description: "Convert BMP images into widely supported JPG files in your browser.", category: "image", status: "live" },
   { slug: "webp-to-jpg", title: "WebP to JPG", description: "Convert WebP images into widely supported JPG files in your browser.", category: "image", status: "live" },
   { slug: "webp-to-png", title: "WebP to PNG", description: "Convert WebP images into PNG files while preserving transparency.", category: "image", status: "live" },
   { slug: "webp-to-avif", title: "WebP to AVIF", description: "Convert WebP images into AVIF files while preserving transparency.", category: "image", status: "live" },
