@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BMP to JPG Converter | ConvertFileType</title>
+  <meta name="description" content="Convert BMP images to JPG directly in your browser. Choose JPG quality and keep your image on your device.">
+  <link rel="canonical" href="https://convertfiletype.com/bmp-to-jpg/">
+  <link rel="stylesheet" href="/assets/css/styles.css?v=15">
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="/">ConvertFileType</a><nav aria-label="Primary"><a href="/">All converters</a></nav></header>
+  <main>
+    <section class="hero converter-hero"><p class="eyebrow">Image converter</p><h1>BMP to JPG</h1><p class="lede">Convert a BMP image to a widely supported JPG directly in your browser. Choose the output quality and download the result without uploading your source image.</p></section>
+    <section class="converter-panel" aria-labelledby="converter-title">
+      <div class="converter-panel-heading"><div><p class="eyebrow">Free converter</p><h2 id="converter-title">Choose your BMP file</h2></div><span class="local-badge">Processed on your device</span></div>
+      <label class="drop-zone" for="bmp-file" data-drop-zone><input id="bmp-file" data-bmp-file type="file" accept=".bmp,image/bmp,image/x-ms-bmp" hidden><strong>Choose BMP file</strong><span>or drag and drop one here</span><small>BMP, up to 25 MB</small></label>
+      <div class="selected-file" data-selected-file hidden><div><strong data-file-name></strong><span data-file-size></span></div><button type="button" class="text-button" data-clear-file>Remove</button></div>
+      <div class="converter-options option-grid"><div><label for="jpg-quality">JPG quality <output for="jpg-quality" data-quality-output>90%</output></label><input id="jpg-quality" data-quality type="range" min="60" max="100" value="90" step="5"></div></div>
+      <button type="button" class="primary-action" data-convert disabled>Convert to JPG</button>
+      <div class="conversion-progress" data-progress hidden><div class="progress-row"><strong data-progress-label>Preparing converter…</strong><span data-progress-percent>0%</span></div><div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress-track><span data-progress-bar></span></div><small data-progress-detail>Waiting to start.</small></div>
+      <p class="converter-status" data-status role="status" aria-live="polite">Choose a file to begin.</p>
+      <p class="build-version" data-build-version>Converter build: bmp-jpg-v1-native</p>
+      <div class="conversion-result" data-result hidden><img data-preview alt="Converted JPG preview"><div class="result-copy"><strong>Your JPG is ready.</strong><span data-result-size></span><a class="download-action" data-download download>Download JPG</a><button type="button" class="text-button" data-convert-another>Convert another file</button></div></div>
+    </section>
+    <div class="ad-slot" data-ad-slot="converter-mid" aria-label="Reserved advertisement area">Advertisement space reserved</div>
+    <section class="section-block content-section"><div class="section-heading"><p class="eyebrow">How it works</p><h2>BMP to JPG in three steps</h2></div><ol class="steps-list"><li><strong>Choose a BMP image.</strong><span>The source file stays on your device.</span></li><li><strong>Choose JPG quality and convert.</strong><span>Your browser decodes the BMP and creates the JPG locally.</span></li><li><strong>Download the JPG.</strong><span>The output is ready without sending the image to ConvertFileType.</span></li></ol></section>
+    <section class="privacy-card"><p class="eyebrow">Privacy</p><h2>Your image does not get uploaded to us.</h2><p>The conversion runs in your browser using built-in image and canvas support. ConvertFileType does not receive or store your source BMP or generated JPG.</p></section>
+  </main>
+  <footer class="site-footer"><span>ConvertFileType.com</span><a href="/privacy/">Privacy</a></footer>
+  <script src="/assets/js/bmp-to-jpg.js?v=1" defer></script>
+</body>
+</html>
