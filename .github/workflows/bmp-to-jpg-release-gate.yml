@@ -1,0 +1,29 @@
+name: bmp-to-jpg-release-gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check BMP to JPG files and wiring
+        run: |
+          test -f bmp-to-jpg/index.html
+          test -f assets/js/bmp-to-jpg.js
+          test -f tests/bmp-to-jpg-browser-smoke.mjs
+          grep -q 'bmp-to-jpg' assets/js/converters.js
+          grep -q 'convertfiletype.com/bmp-to-jpg/' sitemap.xml
+          grep -q 'Converter build: bmp-jpg-v1-native' bmp-to-jpg/index.html
+          grep -q '/assets/js/bmp-to-jpg.js?v=1' bmp-to-jpg/index.html
+          grep -q 'image/jpeg' assets/js/bmp-to-jpg.js
+          grep -q 'Generated JPG signature is invalid' assets/js/bmp-to-jpg.js
+          grep -q 'Generated JPG dimensions do not match the BMP source' assets/js/bmp-to-jpg.js
+          grep -q 'CONVERSION_TIMEOUT_MS=10000' assets/js/bmp-to-jpg.js
+          grep -q 'externalHttpRequests' tests/bmp-to-jpg-browser-smoke.mjs
+          ! grep -q '<script[^>]*>[^<]' bmp-to-jpg/index.html
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/js/bmp-to-jpg.js
+          node --check tests/bmp-to-jpg-browser-smoke.mjs
